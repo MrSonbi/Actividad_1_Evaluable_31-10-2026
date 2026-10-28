@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 import { authGuard, guestGuard, roleGuard } from './auth.guard';
 import { AuthStore } from './auth.store';
 
 describe('Auth Guards', () => {
-  let router: Router;
   let authStore: any;
 
   beforeEach(() => {
@@ -20,132 +19,92 @@ describe('Auth Guards', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthStore, useValue: authStore },
-        { provide: Router, useValue: { createUrlTree: (url: string[]) => new UrlTree() } },
+        { provide: Router, useValue: { createUrlTree: () => new UrlTree() } },
       ],
     });
-
-    router = TestBed.inject(Router);
   });
 
-  it('authGuard should allow authenticated user', (done) => {
+  it('authGuard should allow authenticated user', async () => {
     authStore.isAuthenticated = () => true;
-    TestBed.runInInjectionContext(() => {
-      const result = authGuard({} as any, {} as any);
-      if (result instanceof Promise) {
-        result.then((res) => {
-          expect(res).toBe(true);
-          done();
-        });
-      } else if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBe(true);
-          done();
-        });
-      } else {
-        expect(result).toBe(true);
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBe(true);
+    } else {
+      expect(result).toBe(true);
+    }
   });
 
-  it('authGuard should redirect to login if not authenticated', (done) => {
+  it('authGuard should redirect to login if not authenticated', async () => {
     authStore.isAuthenticated = () => false;
-    TestBed.runInInjectionContext(() => {
-      const result = authGuard({} as any, {} as any);
-      if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBeInstanceOf(UrlTree);
-          done();
-        });
-      } else {
-        expect(result).toBeInstanceOf(UrlTree);
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBeInstanceOf(UrlTree);
+    } else {
+      expect(result).toBeInstanceOf(UrlTree);
+    }
   });
 
-  it('guestGuard should allow guest', (done) => {
+  it('guestGuard should allow guest', async () => {
     authStore.isAuthenticated = () => false;
-    TestBed.runInInjectionContext(() => {
-      const result = guestGuard({} as any, {} as any);
-      if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBe(true);
-          done();
-        });
-      } else {
-        expect(res => res).toBeTruthy();
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBe(true);
+    } else {
+      expect(result).toBe(true);
+    }
   });
 
-  it('guestGuard should redirect admin to /dashboard', (done) => {
+  it('guestGuard should redirect admin to /dashboard', async () => {
     authStore.isAuthenticated = () => true;
     authStore.isAdmin = () => true;
-    TestBed.runInInjectionContext(() => {
-      const result = guestGuard({} as any, {} as any);
-      if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBeInstanceOf(UrlTree);
-          done();
-        });
-      } else {
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBeInstanceOf(UrlTree);
+    } else {
+      expect(result).toBeInstanceOf(UrlTree);
+    }
   });
 
-  it('roleGuard canActivate should allow admin', (done) => {
+  it('roleGuard canActivate should allow admin', async () => {
     authStore.isAuthenticated = () => true;
     authStore.role = () => 'admin';
     const guard = roleGuard(['admin']);
-    TestBed.runInInjectionContext(() => {
-      const result = guard({} as any, {} as any);
-      if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBe(true);
-          done();
-        });
-      } else {
-        expect(result).toBe(true);
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => guard({} as any, {} as any));
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBe(true);
+    } else {
+      expect(result).toBe(true);
+    }
   });
 
-  it('roleGuard canMatch should allow admin', (done) => {
+  it('roleGuard canMatch should allow admin', async () => {
     authStore.isAuthenticated = () => true;
     authStore.role = () => 'admin';
     const guard = roleGuard(['admin']);
-    TestBed.runInInjectionContext(() => {
-      const result = guard({} as any);
-      if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBe(true);
-          done();
-        });
-      } else {
-        expect(result).toBe(true);
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => guard({} as any, {} as any) as any);
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBe(true);
+    } else {
+      expect(result).toBe(true);
+    }
   });
 
-  it('roleGuard should redirect non-admin to /forbidden', (done) => {
+  it('roleGuard should redirect non-admin to /forbidden', async () => {
     authStore.isAuthenticated = () => true;
     authStore.role = () => 'user';
     const guard = roleGuard(['admin']);
-    TestBed.runInInjectionContext(() => {
-      const result = guard({} as any, {} as any);
-      if ((result as any).subscribe) {
-        (result as any).subscribe((res: any) => {
-          expect(res).toBeInstanceOf(UrlTree);
-          done();
-        });
-      } else {
-        done();
-      }
-    });
+    const result = await TestBed.runInInjectionContext(() => guard({} as any, {} as any));
+    if (result && typeof (result as any).subscribe === 'function') {
+      const res = await firstValueFrom(result as any);
+      expect(res).toBeInstanceOf(UrlTree);
+    } else {
+      expect(result).toBeInstanceOf(UrlTree);
+    }
   });
 });
