@@ -1,10 +1,11 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { errorInterceptor } from './error.interceptor';
 import { AuthStore } from '../auth/auth.store';
+
+import { errorInterceptor } from './error.interceptor';
 
 describe('errorInterceptor', () => {
   let http: HttpClient;
@@ -29,13 +30,14 @@ describe('errorInterceptor', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should handle 401 by signing out and navigating to login', () => {
+  it('should handle 401 by signing out and navigating to login', async () => {
     http.get('/test').subscribe({
       next: () => {},
       error: () => {},
     });
     const req = httpMock.expectOne('/test');
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
+    await new Promise((r) => setTimeout(r, 0));
     expect(authStore.signOut).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { sessionExpired: '1' } });
   });

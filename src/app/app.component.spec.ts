@@ -8,7 +8,13 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [provideRouter([])],
-    }).compileComponents();
+    })
+      .overrideComponent(AppComponent, {
+        set: {
+          imports: [],
+        },
+      })
+      .compileComponents();
 
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
