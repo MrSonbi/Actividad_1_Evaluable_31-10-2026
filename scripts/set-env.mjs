@@ -6,9 +6,12 @@ const envOut = resolve(process.cwd(), 'src/environments/environment.ts');
 const envExample = resolve(process.cwd(), '.env.example');
 const envTsExample = resolve(process.cwd(), 'environment.example.ts');
 
+const args = process.argv.slice(2);
+const isProd = args.includes('--prod') || process.env.NODE_ENV === 'production';
+
 const getEnv = (key) => {
   const fromProcess = process.env[key];
-  if (fromProcess && fromProcess.trim()) return fromProcess.trim();
+  if (fromProcess !== undefined && fromProcess.trim()) return fromProcess.trim();
   if (existsSync(envPath)) {
     const content = readFileSync(envPath, 'utf8');
     const lines = content.split(/\r?\n/);
@@ -29,7 +32,7 @@ const supabaseUrl = getEnv('SUPABASE_URL');
 const supabaseKey = getEnv('SUPABASE_KEY');
 
 const content = `export const environment = {
-  production: false,
+  production: ${isProd ? 'true' : 'false'},
   supabaseUrl: '${supabaseUrl}',
   supabaseKey: '${supabaseKey}',
 };
