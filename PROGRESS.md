@@ -1,12 +1,13 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F0 · Base del proyecto
-- Rama de trabajo: feature/f0-setup (desde develop)
-- Fecha inicio: 2026-10-28
+- Fase actual: F1 · Auth, rutas y control de acceso (RA1)
+- Rama de trabajo: feature/f1-auth (desde develop)
+- Fecha inicio F0: 2026-10-28
+- Fecha fin F0: 2026-10-28
 
 ## Checklist de fases
-- [ ] F0 · Base del proyecto
+- [x] F0 · Base del proyecto
 - [ ] F1 · Auth, rutas y control de acceso (RA1)
 - [ ] F2 · Capa de datos asíncrona (RA5)
 - [ ] F3 · Componentes reutilizables (RA3)
@@ -19,7 +20,11 @@
 - [ ] F10 · Cierre
 
 ## Decisiones
-- (pendiente)
+- Ionic Angular standalone con plantilla sidemenu (estructura existente adaptada).
+- Entorno con `scripts/set-env.mjs` (prestart/prebuild/pretest). `.env` y `environment.ts` en `.gitignore`. Commiteados `.env.example` y `environment.example.ts`.
+- Añadidas dependencias: `@supabase/supabase-js`, `@ngrx/signals`, `chart.js`, `jspdf`, `jspdf-autotable`, `@compodoc/compodoc` (dev), `@angular/pwa` (dev).
+- Build/test/lint ejecutados en verde.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
+- 2026-10-28: F0 completado - dependencias, scripts de entorno, .gitignore/.env.example, lint+test+build OK. Commit y merge a develop. Listo para F1.
