@@ -13,8 +13,13 @@ export default defineConfig({
     // Vitest's file-system module cache can then serve a stale bundle after a
     // non-spec file changes. Turn the cache off so reruns always test current code.
     fsModuleCache: false,
+    server: {
+      deps: {
+        inline: [/@ionic\/.*/],
+      },
+    },
     deps: {
-      inline: ['@ionic/angular', '@ionic/core'],
+      inline: [/@ionic\/.*/],
     },
   },
 });
