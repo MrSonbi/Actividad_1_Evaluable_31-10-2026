@@ -1,0 +1,7 @@
+{
+  "name": "Actividad_1_Evaluable_31-10-2026",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
