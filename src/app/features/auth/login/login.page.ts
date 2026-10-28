@@ -49,7 +49,7 @@ export class LoginPage {
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  async onSubmit() {
+  async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       const firstInvalid = document.querySelector('.ng-invalid[formControlName]') as HTMLElement;

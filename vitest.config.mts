@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
+      '@ionic/core/components/index.js': resolve(__dirname, 'node_modules/@ionic/core/components/index.js'),
       '@ionic/core/components': resolve(__dirname, 'node_modules/@ionic/core/components/index.js'),
       '@ionic/core/loader': resolve(__dirname, 'node_modules/@ionic/core/loader/index.js'),
     },

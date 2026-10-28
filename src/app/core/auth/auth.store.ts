@@ -1,7 +1,8 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 
-import { Profile, UserRole } from '../models/auth.model';
+import type { Profile, UserRole } from '../models/auth.model';
+
 import { AuthService } from './auth.service';
 
 interface AuthState {
@@ -32,7 +33,7 @@ export const AuthStore = signalStore(
     isAuthenticated: computed(() => !!store.userId()),
   })),
   withMethods((store, authService = inject(AuthService)) => ({
-    async init() {
+    async init(): Promise<void> {
       patchState(store, { loading: true, error: null });
       try {
         const { data } = await authService.getSession();
@@ -45,7 +46,15 @@ export const AuthStore = signalStore(
         const email = session.user.email ?? null;
         const { data: profile, error } = await authService.getProfile(userId);
         if (error) {
-          patchState(store, { userId, email, profile: null, role: null, initialized: true, loading: false, error: error.message });
+          patchState(store, {
+            userId,
+            email,
+            profile: null,
+            role: null,
+            initialized: true,
+            loading: false,
+            error: error.message,
+          });
           return;
         }
         patchState(store, {
@@ -57,11 +66,12 @@ export const AuthStore = signalStore(
           loading: false,
           error: null,
         });
-      } catch (e: any) {
-        patchState(store, { ...initialState, initialized: true, error: e?.message ?? 'Error de autenticación' });
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Error de autenticación';
+        patchState(store, { ...initialState, initialized: true, error: message });
       }
     },
-    async signIn(email: string, password: string) {
+    async signIn(email: string, password: string): Promise<{ error: unknown | null }> {
       patchState(store, { loading: true, error: null });
       try {
         const { error } = await authService.signIn(email, password);
@@ -76,12 +86,12 @@ export const AuthStore = signalStore(
         return { error: e };
       }
     },
-    async signOut() {
+    async signOut(): Promise<void> {
       patchState(store, { loading: true });
       await authService.signOut();
       patchState(store, { ...initialState, initialized: true });
     },
-    setError(message: string | null) {
+    setError(message: string | null): void {
       patchState(store, { error: message });
     },
   })),

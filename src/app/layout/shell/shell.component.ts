@@ -50,7 +50,7 @@ export class ShellComponent {
     addIcons({ homeOutline, cubeOutline, logOutOutline });
   }
 
-  async signOut() {
+  async signOut(): Promise<void> {
     await this.authStore.signOut();
   }
 }
