@@ -1,11 +1,10 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import type { CanActivateFn, CanMatchFn } from '@angular/router';
 import { filter, map, take } from 'rxjs/operators';
 
 import { AuthStore } from './auth.store';
-
-import type { CanActivateFn, CanMatchFn } from '@angular/router';
 
 const waitInitialized = () => {
   const store = inject(AuthStore);

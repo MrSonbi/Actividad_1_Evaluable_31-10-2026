@@ -1,10 +1,9 @@
+import type { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { from, switchMap } from 'rxjs';
 
 import { ENVIRONMENT } from '../config/environment.token';
 import { SUPABASE_CLIENT } from '../supabase/supabase.token';
-
-import type { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const env = inject(ENVIRONMENT);
