@@ -1,5 +1,5 @@
-import { writeFileSync, existsSync, readFileSync } from 'fs';
-import { resolve } from 'path';
+import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'fs';
+import { resolve, dirname } from 'path';
 
 const envPath = resolve(process.cwd(), '.env');
 const envOut = resolve(process.cwd(), 'src/environments/environment.ts');
@@ -38,6 +38,7 @@ const content = `export const environment = {
 };
 `;
 
+mkdirSync(dirname(envOut), { recursive: true });
 writeFileSync(envOut, content, 'utf8');
 console.log('Generated src/environments/environment.ts');
 
