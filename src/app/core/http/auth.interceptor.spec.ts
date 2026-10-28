@@ -1,10 +1,11 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { authInterceptor } from './auth.interceptor';
 import { ENVIRONMENT } from '../config/environment.token';
 import { SUPABASE_CLIENT } from '../supabase/supabase.token';
+
+import { authInterceptor } from './auth.interceptor';
 
 describe('authInterceptor', () => {
   let http: HttpClient;
