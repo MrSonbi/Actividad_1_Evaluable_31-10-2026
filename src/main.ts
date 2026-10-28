@@ -8,7 +8,7 @@ import {
   withPreloading,
   PreloadAllModules,
 } from '@angular/router';
-import { IonicRouteStrategy } from '@ionic/angular/standalone';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
@@ -18,6 +18,7 @@ import { errorInterceptor } from './app/core/http/error.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideIonicAngular(),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
