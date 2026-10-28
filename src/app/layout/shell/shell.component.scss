@@ -1,0 +1,39 @@
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast);
+  z-index: 10000;
+  border-radius: 4px;
+}
+
+.user-info {
+  padding: 1rem;
+  border-top: 1px solid var(--ion-color-light-shade);
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+.user-role {
+  font-size: 0.875rem;
+  color: var(--ion-color-medium);
+  text-transform: capitalize;
+}
+
+ion-item.active {
+  --color: var(--ion-color-primary);
+}
