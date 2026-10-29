@@ -36,6 +36,12 @@ export class DataTableComponent<T> {
   /** Texto descriptivo de la tabla (`<caption>`). */
   readonly caption = input('Listado de datos');
 
+  /** Muestra los botones de exportación (se activan en la fase de informes). */
+  readonly exportable = input(true);
+
+  /** Muestra el botón de detalle en cada fila. */
+  readonly selectable = input(true);
+
   /** Muestra el botón de edición en cada fila. */
   readonly editable = input(false);
 
@@ -91,6 +97,12 @@ export class DataTableComponent<T> {
     const direction = this.sortDirection() === 'asc' ? 1 : -1;
     return [...this.filteredRows()].sort((first, second) => direction * compareValues(first[key], second[key]));
   });
+
+  /** Indica si la columna de acciones tiene algún botón visible. */
+  protected readonly hasActions = computed(() => this.selectable() || this.editable() || this.removable());
+
+  /** Columnas que ocupa una fila de mensaje. */
+  protected readonly messageColspan = computed(() => this.columns().length + (this.hasActions() ? 1 : 0));
 
   /** Número total de páginas (siempre al menos una). */
   protected readonly totalPages = computed(() =>
