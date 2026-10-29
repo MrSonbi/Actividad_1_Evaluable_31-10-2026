@@ -1,0 +1,82 @@
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activity-feed__title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.activity-feed__state {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ion-color-medium, #6c757d);
+}
+
+.activity-feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.activity {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--ion-color-light-shade, #d7d8da);
+}
+
+.activity:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.activity__badge {
+  flex: 0 0 auto;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: var(--ion-color-light, #f4f5f8);
+}
+
+.activity__badge--create {
+  color: var(--ion-color-success-shade, #0a6b34);
+  background: var(--ion-color-success-tint, #d1f2df);
+}
+
+.activity__badge--update {
+  color: var(--ion-color-warning-shade, #8a5a00);
+  background: var(--ion-color-warning-tint, #ffefc5);
+}
+
+.activity__badge--delete {
+  color: var(--ion-color-danger-shade, #a0000c);
+  background: var(--ion-color-danger-tint, #ffd6d9);
+}
+
+.activity__body {
+  min-width: 0;
+}
+
+.activity__summary {
+  margin: 0;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.activity__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ion-color-medium, #6c757d);
+}
