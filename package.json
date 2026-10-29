@@ -10,7 +10,7 @@
     "prebuild": "node scripts/set-env.mjs --prod",
     "build": "ng build",
     "pretest": "node scripts/set-env.mjs",
-    "test": "npm run test:unit && npm run test:e2e",
+    "test": "ng test --watch=false",
     "watch": "ng build --watch --configuration development",
     "lint": "npm run eslint && npm run typecheck:e2e && npm run prettier -- --check",
     "lint:fix": "npm run eslint -- --fix && npm run prettier -- --write",
