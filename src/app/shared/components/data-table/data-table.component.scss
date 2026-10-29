@@ -1,0 +1,154 @@
+.data-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.search {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  input {
+    padding: 0.55rem 0.7rem;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--ion-color-medium, #6c757d);
+    border-radius: 0.5rem;
+  }
+}
+
+.exports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.export-button,
+.action-button,
+.page-button {
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--ion-color-medium, #6c757d);
+  border-radius: 0.4rem;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.action-button {
+  margin: 0 0.35rem 0.35rem 0;
+}
+
+.action-button--danger {
+  color: var(--ion-color-danger, #c5000f);
+  border-color: var(--ion-color-danger, #c5000f);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ion-color-light-shade, #d7d8da);
+}
+
+th {
+  font-weight: 600;
+}
+
+.sort-button {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--ion-color-light, #f4f5f8);
+}
+
+.pagination {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--ion-color-primary, #0054e9);
+}
+
+@media (max-width: 40rem) {
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+  }
+
+  tr {
+    padding: 0.35rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--ion-color-light-shade, #d7d8da);
+    border-radius: 0.5rem;
+  }
+
+  td {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0.5rem;
+    text-align: right;
+    border-bottom: 0;
+  }
+
+  td::before {
+    font-weight: 600;
+    text-align: left;
+    content: attr(data-label);
+  }
+
+}

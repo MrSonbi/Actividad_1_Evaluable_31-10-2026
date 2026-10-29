@@ -16,7 +16,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { homeOutline, cubeOutline, logOutOutline } from 'ionicons/icons';
+import { cubeOutline, gridOutline, homeOutline, logOutOutline } from 'ionicons/icons';
 
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { AuthStore } from '../../core/auth/auth.store';
@@ -49,7 +49,7 @@ export class ShellComponent {
   private readonly session = inject(AuthSessionService);
 
   constructor() {
-    addIcons({ homeOutline, cubeOutline, logOutOutline });
+    addIcons({ homeOutline, cubeOutline, gridOutline, logOutOutline });
   }
 
   /**

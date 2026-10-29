@@ -28,6 +28,13 @@ export const routes: Routes = [
         path: 'products',
         loadComponent: () => import('./features/products/products.page').then((m) => m.ProductsPage),
       },
+      {
+        path: 'components-demo',
+        loadComponent: () =>
+          import('./features/components-demo/components-demo.page').then((m) => m.ComponentsDemoPage),
+        canActivate: [roleGuard(['admin'])],
+        canMatch: [roleGuard(['admin'])],
+      },
     ],
   },
   {
