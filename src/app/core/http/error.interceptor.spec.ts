@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 
 import { AuthStore } from '../auth/auth.store';
 
+import { ApiError } from './api-error';
 import { errorInterceptor } from './error.interceptor';
 
 describe('errorInterceptor', () => {
@@ -56,10 +57,46 @@ describe('errorInterceptor', () => {
     http.get('/test').subscribe({
       next: () => {},
       error: (err: Error) => {
-        expect(err.message).toBe('Sin conexión a la red');
+        expect(err.message).toBe('Sin conexión a la red. Comprueba tu conexión e inténtalo de nuevo.');
       },
     });
     const req = httpMock.expectOne('/test');
     req.error(new ProgressEvent('error'), { status: 0 });
+  });
+
+  it('should map a duplicated value (23505) to a friendly message', () => {
+    let received: Error | undefined;
+    http.post('/test', {}).subscribe({
+      next: () => {},
+      error: (err: Error) => {
+        received = err;
+      },
+    });
+    const req = httpMock.expectOne('/test');
+    req.flush(
+      { code: '23505', message: 'duplicate key value violates unique constraint' },
+      { status: 409, statusText: 'Conflict' },
+    );
+
+    expect(received?.message).toBe('Ya existe un registro con ese valor. Revisa el email o el SKU.');
+    expect(received).toBeInstanceOf(ApiError);
+  });
+
+  it('should map a permission error (42501) to a friendly message', () => {
+    let received: Error | undefined;
+    http.delete('/test').subscribe({
+      next: () => {},
+      error: (err: Error) => {
+        received = err;
+      },
+    });
+    const req = httpMock.expectOne('/test');
+    req.flush(
+      { code: '42501', message: 'new row violates row-level security policy' },
+      { status: 403, statusText: 'Forbidden' },
+    );
+
+    expect(received?.message).toBe('No tienes permisos para realizar esta acción.');
+    expect(received).toBeInstanceOf(ApiError);
   });
 });
