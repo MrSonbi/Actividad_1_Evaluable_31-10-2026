@@ -1,8 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F3 · Componentes reutilizables (RA3) completada
-- Rama de trabajo: feature/f3-components
+- Fase actual: F4 · Funcionalidades y formularios (RA2) — mitad F4a (productos y clientes) completada; falta F4b (pedidos y cierre)
+- Rama de trabajo: feature/f4a-products-customers
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -11,13 +11,15 @@
 - Fecha fin F2: 2026-10-29
 - Fecha inicio F3: 2026-10-29
 - Fecha fin F3: 2026-10-29
+- Fecha inicio F4a: 2026-10-29
+- Fecha fin F4a: 2026-10-29
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
 - [x] F1 · Auth, rutas y control de acceso (RA1)
 - [x] F2 · Capa de datos asíncrona (RA5)
 - [x] F3 · Componentes reutilizables (RA3)
-- [ ] F4 · Funcionalidades y formularios (RA2)
+- [ ] F4 · Funcionalidades y formularios (RA2) — F4a (productos y clientes) hecha
 - [ ] F5 · Dashboard (solo admin) (RA5)
 - [ ] F6 · Informes PDF y CSV (RA5)
 - [ ] F7 · Accesibilidad, responsive y PWA (RA4)
@@ -45,6 +47,14 @@
 - F3: `src/test-setup.ts` define `document.adoptedStyleSheets` (jsdom no lo implementa) para que los componentes de Ionic puedan inicializarse en tests futuros.
 - F3: página temporal `/components-demo` (solo admin, con `canActivate` + `canMatch`) y entrada de menú visible únicamente para administradores.
 - F3: tests de los cinco componentes (búsqueda, ordenación, paginación, acciones, estados de carga/vacío, creación/actualización/destrucción del gráfico y emisión de puntos). Total: 83 tests.
+- F4a: `uniqueFieldValidator(api, column, excludeId?)` en `shared/validators`: espera 400 ms (`debounceTime`), cancela la comprobación anterior (`switchMap`) y no bloquea el formulario si la API falla (`catchError`). El control queda en `PENDING` mientras consulta. `ProductsApi`/`CustomersApi` exponen `exists()` para que el validador sea agnóstico.
+- F4a: `ProductsStore` incluye las categorías del formulario (`loadCategories`), que se cargan una sola vez por sesión.
+- F4a: `app-data-table` gana `selectable` y `exportable` (ambos por defecto `true`) y oculta la columna de acciones cuando ningún botón aplica. En productos/clientes se desactivan detalle y exportación (esta última llega en F6); así no quedan botones sin efecto.
+- F4a: productos y clientes usan un formulario reactivo tipado (`NonNullableFormBuilder`) en un `ion-modal`. Errores tras `touched` o envío, `aria-invalid`/`aria-describedby`, foco en el primer campo inválido, spinner en el botón, toast de resultado y confirmación con `AlertController` antes de borrar. El estado del formulario se repinta con una señal que escucha `statusChanges` (OnPush + zoneless).
+- F4a: el email se normaliza a minúsculas en el formulario y en `CustomersApi`; el validador de edición excluye el propio `id`. Los duplicados que devuelve PostgREST (`23505`) ya se traducen a un mensaje amigable en `errorInterceptor` y se muestran en el toast.
+- F4a: cada alta, edición y borrado registra actividad desde los stores (`ActivityLogService`).
+- F4a: `test-setup.ts` parchea `adoptedStyleSheets` también en `ShadowRoot` (jsdom lo expone como `undefined`) para que las páginas con componentes Ionic se puedan montar en Vitest.
+- F4a: comprobación de Supabase con la clave pública: `/auth/v1/health` responde 200 y `/rest/v1/{categories,products,customers,v_kpis}` responden 200. Sin sesión devuelven `[]`/ceros porque las políticas RLS son `to authenticated`; no hay credenciales demo en `.env` para verificar la carga autenticada.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -54,3 +64,4 @@
 - 2026-10-29: Fix del logout (fix/logout-redirect, PR #1) - `AuthSessionService`, redirección con `replaceUrl`, reacción a `SIGNED_OUT`, shell oculto sin sesión, tests (25). Lint/test/build OK.
 - 2026-10-29: F2 completado - modelos, `RestClient`, APIs (products, categories, customers, orders, dashboard), `DocumentStore` + Realtime, `ActivityLogService`, stores de feature y tests con `HttpTestingController` (59 tests). Lint/test/build OK.
 - 2026-10-29: F3 completado - modelos compartidos y cinco componentes reutilizables (`app-data-table`, `app-stat-card`, `app-chart`, `app-empty-state`, `app-activity-feed`) con TSDoc y 3+ tests cada uno; página temporal `/components-demo` solo para admin. Lint/test/build OK (83 tests).
+- 2026-10-29: F4a completada - pantallas de productos y clientes con datos reales, formularios modales, validador asíncrono de SKU/email, confirmación de borrado, toasts y actividad; tests de validador y de visibilidad por rol (96 tests). Lint/test/build OK. Pendiente F4b: pedidos y retirada de `/components-demo`.

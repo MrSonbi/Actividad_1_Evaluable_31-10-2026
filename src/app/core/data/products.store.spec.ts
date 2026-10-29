@@ -6,7 +6,10 @@ import type { ProductWithCategory } from '../models/product.model';
 
 import { ActivityLogService } from './activity-log.service';
 import { ProductsStore } from './products.store';
+import { CategoriesApi } from './sql/categories.api';
 import { ProductsApi } from './sql/products.api';
+
+const CATEGORY = { id: 2, name: 'Periféricos' };
 
 const PRODUCT: ProductWithCategory = {
   id: 1,
@@ -27,6 +30,7 @@ describe('ProductsStore', () => {
     remove: ReturnType<typeof vi.fn>;
   };
   let activity: { log: ReturnType<typeof vi.fn> };
+  let categories: { list: ReturnType<typeof vi.fn> };
   let store: InstanceType<typeof ProductsStore>;
 
   beforeEach(() => {
@@ -37,10 +41,12 @@ describe('ProductsStore', () => {
       remove: vi.fn(() => of(undefined)),
     };
     activity = { log: vi.fn() };
+    categories = { list: vi.fn(() => of([CATEGORY])) };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: ProductsApi, useValue: api },
+        { provide: CategoriesApi, useValue: categories },
         { provide: ActivityLogService, useValue: activity },
       ],
     });
@@ -82,6 +88,13 @@ describe('ProductsStore', () => {
     expect(created).toBe(true);
     expect(activity.log).toHaveBeenCalledWith('create', 'product', 1, 'Producto creado: Teclado');
     expect(api.page).toHaveBeenCalledTimes(1);
+  });
+
+  it('carga las categorías del formulario', async () => {
+    await store.loadCategories();
+
+    expect(categories.list).toHaveBeenCalled();
+    expect(store.categories()).toEqual([CATEGORY]);
   });
 
   it('devuelve false y guarda el error si el borrado falla', async () => {

@@ -125,6 +125,16 @@ export class ProductsApi {
   }
 
   /**
+   * Implementación de {@link UniqueFieldApi} para el campo SKU.
+   *
+   * @param value SKU a comprobar
+   * @param excludeId Producto que se está editando, si procede
+   */
+  exists(value: string, excludeId?: number): Observable<boolean> {
+    return this.skuExists(value, excludeId);
+  }
+
+  /**
    * Traduce la consulta a filtros PostgREST.
    *
    * @param query Consulta de productos

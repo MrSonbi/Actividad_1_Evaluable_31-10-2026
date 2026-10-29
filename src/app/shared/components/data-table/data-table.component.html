@@ -11,22 +11,24 @@
       />
     </label>
     <div class="exports">
-      <button
-        type="button"
-        class="export-button"
-        [disabled]="rows().length === 0"
-        (click)="exportRequested.emit('csv')"
-      >
-        Exportar CSV
-      </button>
-      <button
-        type="button"
-        class="export-button"
-        [disabled]="rows().length === 0"
-        (click)="exportRequested.emit('pdf')"
-      >
-        Exportar PDF
-      </button>
+      @if (exportable()) {
+        <button
+          type="button"
+          class="export-button"
+          [disabled]="rows().length === 0"
+          (click)="exportRequested.emit('csv')"
+        >
+          Exportar CSV
+        </button>
+        <button
+          type="button"
+          class="export-button"
+          [disabled]="rows().length === 0"
+          (click)="exportRequested.emit('pdf')"
+        >
+          Exportar PDF
+        </button>
+      }
     </div>
   </div>
 
@@ -58,17 +60,19 @@
               }
             </th>
           }
-          <th scope="col">Acciones</th>
+          @if (hasActions()) {
+            <th scope="col">Acciones</th>
+          }
         </tr>
       </thead>
       <tbody>
         @if (loading()) {
           <tr>
-            <td class="message" [attr.colspan]="columns().length + 1">Cargando datos…</td>
+            <td class="message" [attr.colspan]="messageColspan()">Cargando datos…</td>
           </tr>
         } @else if (pagedRows().length === 0) {
           <tr>
-            <td class="message" [attr.colspan]="columns().length + 1">No hay resultados para los filtros aplicados.</td>
+            <td class="message" [attr.colspan]="messageColspan()">No hay resultados para los filtros aplicados.</td>
           </tr>
         } @else {
           @for (row of pagedRows(); track $index) {
@@ -82,36 +86,40 @@
                   }
                 </td>
               }
-              <td class="actions" data-label="Acciones">
-                <button
-                  type="button"
-                  class="action-button"
-                  [attr.aria-label]="'Ver detalle de ' + rowIdentifier(row)"
-                  (click)="selectRow(row)"
-                >
-                  Ver
-                </button>
-                @if (editable()) {
-                  <button
-                    type="button"
-                    class="action-button"
-                    [attr.aria-label]="'Editar ' + rowIdentifier(row)"
-                    (click)="editRow(row)"
-                  >
-                    Editar
-                  </button>
-                }
-                @if (removable()) {
-                  <button
-                    type="button"
-                    class="action-button action-button--danger"
-                    [attr.aria-label]="'Eliminar ' + rowIdentifier(row)"
-                    (click)="removeRow(row)"
-                  >
-                    Eliminar
-                  </button>
-                }
-              </td>
+              @if (hasActions()) {
+                <td class="actions" data-label="Acciones">
+                  @if (selectable()) {
+                    <button
+                      type="button"
+                      class="action-button"
+                      [attr.aria-label]="'Ver detalle de ' + rowIdentifier(row)"
+                      (click)="selectRow(row)"
+                    >
+                      Ver
+                    </button>
+                  }
+                  @if (editable()) {
+                    <button
+                      type="button"
+                      class="action-button"
+                      [attr.aria-label]="'Editar ' + rowIdentifier(row)"
+                      (click)="editRow(row)"
+                    >
+                      Editar
+                    </button>
+                  }
+                  @if (removable()) {
+                    <button
+                      type="button"
+                      class="action-button action-button--danger"
+                      [attr.aria-label]="'Eliminar ' + rowIdentifier(row)"
+                      (click)="removeRow(row)"
+                    >
+                      Eliminar
+                    </button>
+                  }
+                </td>
+              }
             </tr>
           }
         }
