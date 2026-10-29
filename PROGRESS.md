@@ -1,20 +1,22 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F2 · Capa de datos asíncrona (RA5) completada
-- Rama de trabajo: feature/f2-data
+- Fase actual: F3 · Componentes reutilizables (RA3) completada
+- Rama de trabajo: feature/f3-components
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
 - Fecha fin F1: 2026-10-28
 - Fecha inicio F2: 2026-10-29
 - Fecha fin F2: 2026-10-29
+- Fecha inicio F3: 2026-10-29
+- Fecha fin F3: 2026-10-29
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
 - [x] F1 · Auth, rutas y control de acceso (RA1)
 - [x] F2 · Capa de datos asíncrona (RA5)
-- [ ] F3 · Componentes reutilizables (RA3)
+- [x] F3 · Componentes reutilizables (RA3)
 - [ ] F4 · Funcionalidades y formularios (RA2)
 - [ ] F5 · Dashboard (solo admin) (RA5)
 - [ ] F6 · Informes PDF y CSV (RA5)
@@ -36,6 +38,13 @@
 - F2: los errores PostgREST `23505` (duplicado) y `42501` (permisos) se traducen a `ApiError` con mensaje en español en `errorInterceptor`.
 - F2: `DocumentStore` es una interfaz con token `DOCUMENT_STORE`; `SupabaseDocumentStore` usa REST para `add`/`latest` y Realtime para `changes$` (elimina el canal en el teardown).
 - F2: los stores de feature (`ProductsStore`, `CustomersStore`, `OrdersStore`) exponen lista, total, loading, error, filtros, paginación y CRUD; cada escritura llama a `ActivityLogService`.
+- F3: componentes standalone y `OnPush` en `src/app/shared/components`: `app-data-table<T>` (buscador, ordenación, paginación, exportación y acciones), `app-stat-card`, `app-chart`, `app-empty-state` y `app-activity-feed`. Solo usan `input()`/`output()`; no inyectan stores de features.
+- F3: `app-data-table` usa `[(ngModel)]` para el buscador, muestra `<caption>`, `aria-sort`, región `aria-live` con el número de resultados y filas en tarjetas con `data-label` en móvil.
+- F3: `app-chart` envuelve Chart.js directamente, actualiza/recrea el gráfico con `effect()` y **destruye la instancia en `ngOnDestroy`**. Incluye `<canvas role="img">` y resumen textual oculto.
+- F3: los iconos de `app-stat-card`/`app-empty-state` se pintan con `ion-icon` como elemento personalizado (`CUSTOM_ELEMENTS_SCHEMA`) para no acoplar los componentes a `@ionic/angular` y poder testearlos en jsdom.
+- F3: `src/test-setup.ts` define `document.adoptedStyleSheets` (jsdom no lo implementa) para que los componentes de Ionic puedan inicializarse en tests futuros.
+- F3: página temporal `/components-demo` (solo admin, con `canActivate` + `canMatch`) y entrada de menú visible únicamente para administradores.
+- F3: tests de los cinco componentes (búsqueda, ordenación, paginación, acciones, estados de carga/vacío, creación/actualización/destrucción del gráfico y emisión de puntos). Total: 83 tests.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -44,3 +53,4 @@
 - 2026-10-28: Correcciones F1 (fix/f1-calidad) - prettier, provideIonicAngular, vitest inline, tests de guards/interceptores/AuthStore, lint/test/build OK.
 - 2026-10-29: Fix del logout (fix/logout-redirect, PR #1) - `AuthSessionService`, redirección con `replaceUrl`, reacción a `SIGNED_OUT`, shell oculto sin sesión, tests (25). Lint/test/build OK.
 - 2026-10-29: F2 completado - modelos, `RestClient`, APIs (products, categories, customers, orders, dashboard), `DocumentStore` + Realtime, `ActivityLogService`, stores de feature y tests con `HttpTestingController` (59 tests). Lint/test/build OK.
+- 2026-10-29: F3 completado - modelos compartidos y cinco componentes reutilizables (`app-data-table`, `app-stat-card`, `app-chart`, `app-empty-state`, `app-activity-feed`) con TSDoc y 3+ tests cada uno; página temporal `/components-demo` solo para admin. Lint/test/build OK (83 tests).
