@@ -103,6 +103,16 @@ export class CustomersApi {
   }
 
   /**
+   * Implementación de {@link UniqueFieldApi} para el campo email.
+   *
+   * @param value Email a comprobar (se normaliza a minúsculas)
+   * @param excludeId Cliente que se está editando, si procede
+   */
+  exists(value: string, excludeId?: number): Observable<boolean> {
+    return this.emailExists(value, excludeId);
+  }
+
+  /**
    * Normaliza el email: la tabla exige `email = lower(email)`.
    *
    * @param email Email original
