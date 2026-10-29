@@ -86,10 +86,22 @@ export const AuthStore = signalStore(
         return { error: e };
       }
     },
+    /**
+     * Limpia la sesión del estado dejándolo como "sin usuario" pero ya
+     * inicializado, para que los guards no esperen indefinidamente.
+     */
+    clearSession(): void {
+      patchState(store, { ...initialState, initialized: true });
+    },
     async signOut(): Promise<void> {
       patchState(store, { loading: true });
-      await authService.signOut();
-      patchState(store, { ...initialState, initialized: true });
+      try {
+        await authService.signOut();
+      } catch {
+        // Si Supabase no responde la sesión local se limpia igualmente: el
+        // usuario espera salir de la aplicación aunque no haya red.
+      }
+      this.clearSession();
     },
     setError(message: string | null): void {
       patchState(store, { error: message });

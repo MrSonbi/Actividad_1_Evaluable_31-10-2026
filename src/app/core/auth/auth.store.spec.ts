@@ -85,4 +85,23 @@ describe('AuthStore', () => {
     expect(store.initialized()).toBe(true);
     expect(store.isAuthenticated()).toBe(false);
   });
+
+  it('should reset state even if Supabase signOut fails', async () => {
+    authService.signOut = vi.fn().mockRejectedValue(new Error('Sin conexión'));
+
+    await store.signOut();
+
+    expect(store.userId()).toBeNull();
+    expect(store.initialized()).toBe(true);
+    expect(store.isAuthenticated()).toBe(false);
+    expect(store.loading()).toBe(false);
+  });
+
+  it('should clear session keeping the store initialized', () => {
+    store.clearSession();
+
+    expect(store.initialized()).toBe(true);
+    expect(store.isAuthenticated()).toBe(false);
+    expect(store.role()).toBeNull();
+  });
 });
