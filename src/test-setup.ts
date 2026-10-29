@@ -1,4 +1,15 @@
 // Polyfills for running unit tests under jsdom (the default Vitest environment).
+
+// jsdom implements `CSSStyleSheet` but not `document.adoptedStyleSheets`, which
+// Stencil (Ionic's web-component compiler) reads while initialising.
+if (!('adoptedStyleSheets' in document)) {
+  Object.defineProperty(document, 'adoptedStyleSheets', {
+    configurable: true,
+    writable: true,
+    value: [],
+  });
+}
+
 // Ionic components such as ion-menu and ion-split-pane query `window.matchMedia`,
 // which jsdom does not implement.
 if (!window.matchMedia) {
