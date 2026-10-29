@@ -29,6 +29,12 @@
               <ion-label>Productos</ion-label>
             </ion-item>
           </ion-menu-toggle>
+          <ion-menu-toggle auto-hide="false">
+            <ion-item routerLink="/customers" routerLinkActive="active">
+              <ion-icon slot="start" name="people-outline"></ion-icon>
+              <ion-label>Clientes</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
         </ion-list>
         <div class="user-info">
           <div class="user-name">{{ authStore.profile()?.full_name || authStore.email() }}</div>
