@@ -4,13 +4,14 @@ Eres un ingeniero frontend senior. Construye ESTE proyecto completo siguiendo la
 Lee este archivo al inicio de cada sesión y consulta `PROGRESS.md` para saber por dónde vas.
 
 ## 0. Reglas de trabajo (obligatorias)
-1. Trabaja por fases. Al acabar cada fase: `lint` + `test` (sin watch) + `build` en verde → commit(s) → merge a `develop` → actualizar `PROGRESS.md` (checklist de fases y decisiones) → continúa con la siguiente SIN esperar, salvo bloqueo.
+1. Trabaja por fases, una rama `feature/fN-nombre` por fase, desde `develop`. Al acabar: commits pequeños con push, abre el PR hacia `develop` con `gh pr create` y PARA. NO fusiones el PR ni empieces la siguiente fase: el usuario prueba y lo fusiona él, y te pedirá la siguiente. Actualiza `PROGRESS.md` en la rama.
 2. Bloqueos (para y pregunta al usuario SOLO en estos casos): falta `.env` o está vacío; falla `git push` por credenciales; una acción destructiva fuera del proyecto.
 3. Nunca inventes URLs, claves ni versiones. Si dudas de una API (Ionic standalone, NgRx Signals, Chart.js, jsPDF-AutoTable, Compodoc) consulta la documentación oficial con `webfetch`.
 4. No hagas más de lo pedido ni refactorices fuera de la fase actual.
 5. Windows-compatible: scripts de `package.json` en Node (`.mjs`), nada de comandos bash.
 6. Idioma: interfaz y documentación en español (es-ES); identificadores de código en inglés; comentarios TSDoc en español.
 7. TypeScript `strict`, sin `any`, sin `console.log` en el código final, ESLint sin errores.
+8. NO ejecutes lint, test ni build, ni pegues sus salidas: los ejecuta el usuario. Sí escribe los archivos .spec.ts de cada pieza. Termina cada fase con un resumen corto de qué archivos creaste o cambiaste, y no declares "verificado" nada que no hayas ejecutado.
 
 ## 1. Qué es
 App de gestión empresarial (productos, clientes, pedidos) con login y 2 roles: **admin** y **user**. Debe ser PWA, accesible (WCAG AA), responsive mobile-first, desplegada en Vercel.
@@ -106,7 +107,7 @@ Standalone, `OnPush`, agnósticos (solo `input()`/`output()`/`model()`, sin inye
 - `lang="es"`, `<title>` por ruta, landmarks (`nav`, `main`), jerarquía de encabezados correcta, orden de tabulación natural (NUNCA `tabindex` positivo), foco visible (`:focus-visible`), todo operable por teclado, Escape cierra modales, botones solo-icono con `aria-label`, `aria-current="page"` en el menú, errores con `role="alert"`, estados de carga con `aria-busy`.
 - Grid de Ionic (`ion-grid`/`ion-col` con `size`, `size-md`, `size-lg`) y Flexbox, mobile-first, sin scroll horizontal de página.
 - PWA: `ng add @angular/pwa` (manifest con iconos, service worker solo en producción).
-- Ejecuta `npx lighthouse` sobre la build de producción servida en local para `/login` (categorías accessibility y best-practices) y guarda informes en `docs/lighthouse/`. Itera hasta ≥ 95. Cero errores en consola en producción. Al final, indica al usuario cómo medir las pantallas autenticadas con Chrome DevTools.
+- Deja preparado `npm run lighthouse` (npx lighthouse sobre la build servida en local, para `/login`, informes en `docs/lighthouse/`) pero NO lo ejecutes: lo ejecuta el usuario y te pasa los fallos para corregirlos. Cero errores en consola en producción. Al final, indica al usuario cómo medir las pantallas autenticadas con Chrome DevTools.
 
 ### F8 · Documentación (RA6)
 - TSDoc en todas las clases, métodos públicos, inputs y outputs.
