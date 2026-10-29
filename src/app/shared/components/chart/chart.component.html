@@ -1,0 +1,13 @@
+<figure class="chart">
+  <canvas #chartCanvas role="img" [attr.aria-label]="ariaLabel()" [style.height]="height()"></canvas>
+  @if (summary().length > 0) {
+    <figcaption class="visually-hidden">
+      <p>{{ ariaLabel() }}</p>
+      <ul>
+        @for (line of summary(); track $index) {
+          <li>{{ line }}</li>
+        }
+      </ul>
+    </figcaption>
+  }
+</figure>
