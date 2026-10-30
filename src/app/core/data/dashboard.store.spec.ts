@@ -162,6 +162,110 @@ describe('DashboardStore', () => {
     expect(dashboardApi.kpis).toHaveBeenCalledTimes(2);
   });
 
+  describe('recarga silenciosa', () => {
+    it('actualiza KPIs, categorías y pedidos sin activar la carga ni pedir la actividad', async () => {
+      await store.load();
+      documents.latest.mockClear();
+      dashboardApi.kpis.mockReturnValue(of({ ...KPIS, total_customers: 5 }));
+      ordersApi.listAll.mockReturnValue(of([ORDER, { ...ORDER, id: 2 }]));
+
+      const refreshing = store.refresh();
+      expect(store.loading()).toBe(false);
+      await refreshing;
+
+      expect(store.kpis().total_customers).toBe(5);
+      expect(store.orders()).toHaveLength(2);
+      expect(documents.latest).not.toHaveBeenCalled();
+      expect(store.latestActivity()).toHaveLength(1);
+    });
+
+    it('conserva los datos y no muestra error si falla', async () => {
+      await store.load();
+      dashboardApi.kpis.mockReturnValue(throwError(() => new ApiError('Sin conexión', 0)));
+
+      await store.refresh();
+
+      expect(store.kpis()).toEqual(KPIS);
+      expect(store.hasError()).toBe(false);
+      expect(store.loading()).toBe(false);
+    });
+
+    it('limpia un error anterior si la recarga funciona', async () => {
+      dashboardApi.kpis.mockReturnValueOnce(throwError(() => new ApiError('Sin conexión', 0)));
+      await store.load();
+      expect(store.hasError()).toBe(true);
+
+      await store.refresh();
+
+      expect(store.hasError()).toBe(false);
+      expect(store.kpis()).toEqual(KPIS);
+    });
+
+    it('no lanza peticiones mientras hay una carga completa en curso', async () => {
+      const kpis = new Subject<DashboardKpis>();
+      dashboardApi.kpis.mockReturnValueOnce(kpis);
+      const loading = store.load();
+
+      await store.refresh();
+      expect(dashboardApi.kpis).toHaveBeenCalledTimes(1);
+
+      kpis.next(KPIS);
+      kpis.complete();
+      await loading;
+    });
+
+    it('descarta la respuesta de una recarga anterior que llega tarde', async () => {
+      const slow = new Subject<DashboardKpis>();
+      dashboardApi.kpis.mockReturnValueOnce(slow);
+      const first = store.refresh();
+
+      dashboardApi.kpis.mockReturnValueOnce(of({ ...KPIS, total_customers: 9 }));
+      await store.refresh();
+
+      slow.next({ ...KPIS, total_customers: 1 });
+      slow.complete();
+      await first;
+
+      expect(store.kpis().total_customers).toBe(9);
+    });
+  });
+
+  describe('recarga por actividad en vivo', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('recarga una sola vez tras 1 s sin eventos', async () => {
+      const subscription = store.connectActivity();
+
+      changes.next(activity('doc-2', '2026-10-02T09:00:00.000Z'));
+      await vi.advanceTimersByTimeAsync(500);
+      changes.next(activity('doc-3', '2026-10-03T09:00:00.000Z'));
+      await vi.advanceTimersByTimeAsync(999);
+      expect(dashboardApi.kpis).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(dashboardApi.kpis).toHaveBeenCalledTimes(1);
+      expect(store.newEvents()).toBe(2);
+      subscription.unsubscribe();
+    });
+
+    it('cancela la recarga pendiente al cancelar la suscripción', async () => {
+      const subscription = store.connectActivity();
+
+      changes.next(activity('doc-2', '2026-10-02T09:00:00.000Z'));
+      subscription.unsubscribe();
+      await vi.advanceTimersByTimeAsync(1000);
+
+      expect(dashboardApi.kpis).not.toHaveBeenCalled();
+    });
+  });
+
   describe('actividad en vivo', () => {
     it('escucha la colección de actividad y añade cada evento al principio del feed', async () => {
       await store.load();
