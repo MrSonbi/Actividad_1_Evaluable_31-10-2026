@@ -16,12 +16,6 @@
                 <ion-label>Dashboard</ion-label>
               </ion-item>
             </ion-menu-toggle>
-            <ion-menu-toggle auto-hide="false">
-              <ion-item routerLink="/components-demo" routerLinkActive="active">
-                <ion-icon slot="start" name="grid-outline"></ion-icon>
-                <ion-label>Componentes (demo)</ion-label>
-              </ion-item>
-            </ion-menu-toggle>
           }
           <ion-menu-toggle auto-hide="false">
             <ion-item routerLink="/products" routerLinkActive="active">
@@ -33,6 +27,12 @@
             <ion-item routerLink="/customers" routerLinkActive="active">
               <ion-icon slot="start" name="people-outline"></ion-icon>
               <ion-label>Clientes</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+          <ion-menu-toggle auto-hide="false">
+            <ion-item routerLink="/orders" routerLinkActive="active">
+              <ion-icon slot="start" name="cart-outline"></ion-icon>
+              <ion-label>Pedidos</ion-label>
             </ion-item>
           </ion-menu-toggle>
         </ion-list>
