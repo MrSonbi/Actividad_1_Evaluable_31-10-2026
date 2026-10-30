@@ -201,14 +201,12 @@ export class RestClient {
       this.page<T>(table, { ...options, limit: size, offset });
 
     return fetchBlock(0).pipe(
-      map(
-        ({ rows, total }): FetchAllState<T> => ({
-          rows,
-          total,
-          nextOffset: nextOffset(rows.length, total, 0, size, 1),
-          blocks: 1,
-        }),
-      ),
+      map(({ rows, total }): FetchAllState<T> => ({
+        rows,
+        total,
+        nextOffset: nextOffset(rows.length, total, 0, size, 1),
+        blocks: 1,
+      })),
       expand((state) => {
         const offset = state.nextOffset;
         if (offset === null) return EMPTY;

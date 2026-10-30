@@ -44,7 +44,10 @@ describe('OrdersStore', () => {
     activity = { log: vi.fn() };
 
     TestBed.configureTestingModule({
-      providers: [{ provide: OrdersApi, useValue: api }, { provide: ActivityLogService, useValue: activity }],
+      providers: [
+        { provide: OrdersApi, useValue: api },
+        { provide: ActivityLogService, useValue: activity },
+      ],
     });
 
     store = TestBed.inject(OrdersStore);

@@ -117,9 +117,7 @@ describe('RestClient', () => {
     const promise = firstValueFrom(client.listAll<{ id: number }>('products', {}, 2));
     const url = (r: { url: string }) => r.url === `${BASE}/products`;
 
-    httpMock
-      .expectOne(url)
-      .flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/2' } });
+    httpMock.expectOne(url).flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/2' } });
 
     await expect(promise).resolves.toEqual([{ id: 1 }, { id: 2 }]);
     httpMock.expectNone(url);
@@ -129,9 +127,7 @@ describe('RestClient', () => {
     const promise = firstValueFrom(client.listAll<{ id: number }>('customers', {}, 2));
     const url = (r: { url: string }) => r.url === `${BASE}/customers`;
 
-    httpMock
-      .expectOne(url)
-      .flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/*' } });
+    httpMock.expectOne(url).flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/*' } });
 
     const second = httpMock.expectOne(url);
     expect(second.request.headers.get('Range')).toBe('2-3');
@@ -145,9 +141,7 @@ describe('RestClient', () => {
     const promise = firstValueFrom(client.listAll<{ id: number }>('orders', {}, 2));
     const url = (r: { url: string }) => r.url === `${BASE}/orders`;
 
-    httpMock
-      .expectOne(url)
-      .flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/4' } });
+    httpMock.expectOne(url).flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/4' } });
 
     httpMock
       .expectOne(url)

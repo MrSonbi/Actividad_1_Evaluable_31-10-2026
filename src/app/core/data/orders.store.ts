@@ -82,9 +82,9 @@ export const OrdersStore = signalStore(
       try {
         const updated = await firstValueFrom(ordersApi.update(id, { status }));
         patchState(store, {
-          items: store.items().map((order) =>
-            order.id === id ? { ...order, ...updated, customer_name: order.customer_name } : order,
-          ),
+          items: store
+            .items()
+            .map((order) => (order.id === id ? { ...order, ...updated, customer_name: order.customer_name } : order)),
           error: null,
         });
         activity.log('update', 'order', id, `Pedido #${id} actualizado a ${status}`);
