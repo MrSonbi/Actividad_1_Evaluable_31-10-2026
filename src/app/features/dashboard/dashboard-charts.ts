@@ -1,5 +1,30 @@
 import type { ProductsByCategory } from '../../core/models/dashboard.model';
-import type { OrderSummary } from '../../core/models/order.model';
+import type { OrderStatus, OrderSummary } from '../../core/models/order.model';
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from '../../core/models/order.model';
+
+/** Periodos, en meses, que se pueden elegir en el dashboard. */
+export const DASHBOARD_PERIODS = [3, 6, 12] as const;
+
+/** Periodo seleccionable del dashboard. */
+export type DashboardPeriod = (typeof DASHBOARD_PERIODS)[number];
+
+/** Filtros del dashboard. */
+export interface OrderFilters {
+  /** Meses naturales de la ventana, incluido el actual. */
+  months: DashboardPeriod;
+  /** Estado seleccionado; `null` representa «todos los estados». */
+  status: OrderStatus | null;
+}
+
+/** Indicadores calculados a partir de los pedidos filtrados. */
+export interface PeriodTotals {
+  /** Número de pedidos, cancelados incluidos. */
+  orders: number;
+  /** Importe de los pedidos no cancelados. */
+  revenue: number;
+  /** Importe medio de los pedidos no cancelados. */
+  averageTicket: number;
+}
 
 /** Serie ya preparada para alimentar `app-chart`. */
 export interface ChartSeries {
@@ -78,6 +103,70 @@ export function monthlyRevenueSeries(
     labels: window.map((month) => shortMonth.format(month)),
     values,
     summary: window.map((month, index) => `${longMonth.format(month)}: ${currency.format(values[index])}`),
+  };
+}
+
+/**
+ * Filtra en memoria los pedidos ya cargados por periodo y estado.
+ *
+ * El periodo usa los mismos meses naturales que {@link monthWindow}, de modo que
+ * los indicadores y los gráficos abarcan siempre las mismas fechas.
+ *
+ * @param orders Pedidos cargados
+ * @param filters Periodo y estado seleccionados
+ * @param now Fecha de referencia
+ */
+export function filterOrders<TOrder extends OrderSummary>(
+  orders: readonly TOrder[],
+  filters: OrderFilters,
+  now: Date = new Date(),
+): TOrder[] {
+  const from = monthWindow(filters.months, now)[0].getTime();
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+
+  return orders.filter((order) => {
+    const time = new Date(order.created_at).getTime();
+    return time >= from && time < to && (filters.status === null || order.status === filters.status);
+  });
+}
+
+/**
+ * Calcula los indicadores de un conjunto de pedidos.
+ *
+ * Los cancelados cuentan como pedidos pero no suman ingresos, igual que en la
+ * vista `v_kpis`.
+ *
+ * @param orders Pedidos ya filtrados
+ */
+export function periodTotals(orders: readonly OrderSummary[]): PeriodTotals {
+  const billable = orders.filter((order) => order.status !== 'cancelled');
+  const revenue = billable.reduce((sum, order) => sum + order.total, 0);
+
+  return {
+    orders: orders.length,
+    revenue: Math.round(revenue * 100) / 100,
+    averageTicket: billable.length === 0 ? 0 : Math.round((revenue / billable.length) * 100) / 100,
+  };
+}
+
+/**
+ * Cuenta los pedidos de cada estado.
+ *
+ * Mantiene siempre los cuatro estados, también los que no tienen pedidos, para
+ * que la leyenda y los colores del gráfico no cambien al filtrar.
+ *
+ * @param orders Pedidos ya filtrados
+ */
+export function ordersByStatusSeries(orders: readonly OrderSummary[]): ChartSeries {
+  const values = ORDER_STATUSES.map((status) => orders.filter((order) => order.status === status).length);
+
+  return {
+    labels: ORDER_STATUSES.map((status) => ORDER_STATUS_LABELS[status]),
+    values,
+    summary: ORDER_STATUSES.map((status, index) => {
+      const share = orders.length === 0 ? 0 : Math.round((values[index] / orders.length) * 100);
+      return `${ORDER_STATUS_LABELS[status]}: ${countLabel(values[index], 'pedido', 'pedidos')} (${share} %)`;
+    }),
   };
 }
 
