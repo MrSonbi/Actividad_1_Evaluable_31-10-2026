@@ -36,7 +36,7 @@ export class DataTableComponent<T> {
   /** Texto descriptivo de la tabla (`<caption>`). */
   readonly caption = input('Listado de datos');
 
-  /** Muestra los botones de exportación (se activan en la fase de informes). */
+  /** Muestra los botones de exportación. */
   readonly exportable = input(true);
 
   /** Muestra el botón de detalle en cada fila. */
@@ -89,8 +89,11 @@ export class DataTableComponent<T> {
     );
   });
 
-  /** Filas ordenadas según la columna activa. */
-  protected readonly sortedRows = computed<readonly T[]>(() => {
+  /**
+   * Filas filtradas y ordenadas de todas las páginas. Es pública para que la
+   * página exporte lo mismo que ve el usuario al recibir `exportRequested`.
+   */
+  readonly sortedRows = computed<readonly T[]>(() => {
     const key = this.sortKey();
     if (!key) return this.filteredRows();
 

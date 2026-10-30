@@ -15,7 +15,7 @@
         <button
           type="button"
           class="export-button"
-          [disabled]="rows().length === 0"
+          [disabled]="loading() || sortedRows().length === 0"
           (click)="exportRequested.emit('csv')"
         >
           Exportar CSV
@@ -23,7 +23,7 @@
         <button
           type="button"
           class="export-button"
-          [disabled]="rows().length === 0"
+          [disabled]="loading() || sortedRows().length === 0"
           (click)="exportRequested.emit('pdf')"
         >
           Exportar PDF
