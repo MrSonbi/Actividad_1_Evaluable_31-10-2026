@@ -129,7 +129,11 @@ describe('dashboard-charts', () => {
 
   describe('periodTotals', () => {
     it('cuenta todos los pedidos y excluye los cancelados de los importes', () => {
-      const totals = periodTotals([order(2026, 9, 1, 10), order(2026, 9, 2, 25.5), order(2026, 9, 3, 100, 'cancelled')]);
+      const totals = periodTotals([
+        order(2026, 9, 1, 10),
+        order(2026, 9, 2, 25.5),
+        order(2026, 9, 3, 100, 'cancelled'),
+      ]);
 
       expect(totals).toEqual({ orders: 3, revenue: 35.5, averageTicket: 17.75 });
     });
