@@ -1,7 +1,7 @@
 import type { TableColumn } from '../../models/table.model';
 
 /** Marca de orden de bytes: permite a Excel reconocer el archivo como UTF-8. */
-const BOM = '﻿';
+const BOM = '\uFEFF';
 
 /** Separador de columnas habitual en la configuración regional española. */
 const SEPARATOR = ';';
@@ -44,7 +44,7 @@ function cellText(value: unknown, type: TableColumn<unknown>['type']): string {
     return Number.isNaN(date.getTime()) ? neutralizeFormula(value) : dateFormat.format(date);
   }
 
-  return neutralizeFormula(String(value).replace(/[  ]/g, ' '));
+  return neutralizeFormula(String(value).replace(/[\u00a0\u202f]/g, ' '));
 }
 
 /**

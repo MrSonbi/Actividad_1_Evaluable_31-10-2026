@@ -87,7 +87,7 @@ function pdfCell(value: unknown, type: TableColumn<unknown>['type']): string {
     if (!Number.isNaN(date.getTime())) text = dateFormat.format(date);
   }
 
-  return text.replace(/[  ]/g, ' ');
+  return text.replace(/[\u00a0\u202f]/g, ' ');
 }
 
 /**
