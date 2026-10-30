@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Pedidos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <header class="page-header">
+    <h1 class="page-title">Pedidos</h1>
+    <p class="page-intro">
+      Consulta de los pedidos registrados con el cliente, el importe y la fecha. El listado es de solo lectura y se
+      puede filtrar por estado.
+    </p>
+  </header>
+
+  @if (store.hasError()) {
+  <ion-text color="danger" role="alert">
+    <p class="page-error">{{ store.error() }}</p>
+  </ion-text>
+  }
+
+  <app-order-status-filter [(value)]="status" (valueChange)="onStatusChange($event)" />
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="store.loading()"
+    [pageSize]="10"
+    caption="Listado de pedidos"
+    [exportable]="false"
+    [selectable]="false"
+  />
+</ion-content>
