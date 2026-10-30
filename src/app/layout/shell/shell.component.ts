@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DOCUMENT, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonButton,
@@ -47,9 +47,25 @@ import { AuthStore } from '../../core/auth/auth.store';
 export class ShellComponent {
   readonly authStore = inject(AuthStore);
   private readonly session = inject(AuthSessionService);
+  private readonly document = inject(DOCUMENT);
 
   constructor() {
     addIcons({ homeOutline, cubeOutline, cartOutline, logOutOutline, peopleOutline });
+  }
+
+  /**
+   * Lleva el foco al contenido de la página visible. Se hace por código porque,
+   * con `<base href="/">`, un enlace `#` navegaría a la raíz de la aplicación.
+   *
+   * @param event Clic o pulsación de teclado sobre el enlace
+   */
+  skipToContent(event: Event): void {
+    event.preventDefault();
+    const content = this.document.querySelector<HTMLElement>(
+      '#main-content > .ion-page:not(.ion-page-hidden) ion-content',
+    );
+    content?.setAttribute('tabindex', '-1');
+    content?.focus();
   }
 
   /**

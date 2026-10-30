@@ -34,6 +34,9 @@
   text-transform: capitalize;
 }
 
+// El grosor y la barra lateral indican la página actual sin depender del color.
 ion-item.active {
   --color: var(--ion-color-primary);
+  font-weight: 600;
+  border-inline-start: 0.25rem solid var(--ion-color-primary);
 }
