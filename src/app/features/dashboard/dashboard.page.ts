@@ -1,16 +1,48 @@
-import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { IonButton, IonContent, IonHeader, IonSpinner, IonText, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import type { OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import {
+  IonBadge,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSpinner,
+  IonText,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
 import type { ChartData, ChartOptions } from 'chart.js';
 import { addIcons } from 'ionicons';
-import { alertCircleOutline, cartOutline, cashOutline, cubeOutline, peopleOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  cartOutline,
+  cashOutline,
+  cubeOutline,
+  notificationsOutline,
+  peopleOutline,
+  receiptOutline,
+} from 'ionicons/icons';
+import type { Subscription } from 'rxjs';
 
-import { DASHBOARD_MONTHS, DashboardStore } from '../../core/data/dashboard.store';
+import { DashboardStore } from '../../core/data/dashboard.store';
+import type { OrderStatus } from '../../core/models/order.model';
+import { ORDER_STATUS_LABELS } from '../../core/models/order.model';
+import { ActivityFeedComponent } from '../../shared/components/activity-feed/activity-feed.component';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { OrderStatusFilterComponent } from '../orders/order-status-filter/order-status-filter.component';
 
-import { monthlyRevenueSeries, productsByCategorySeries } from './dashboard-charts';
-import type { ChartSeries } from './dashboard-charts';
+import {
+  DASHBOARD_PERIODS,
+  filterOrders,
+  monthlyRevenueSeries,
+  ordersByStatusSeries,
+  periodTotals,
+  productsByCategorySeries,
+} from './dashboard-charts';
+import type { ChartSeries, DashboardPeriod } from './dashboard-charts';
 
 /** Indicador que se pinta con `app-stat-card`. */
 interface KpiCard {
@@ -27,10 +59,13 @@ interface KpiCard {
 /**
  * Dashboard de administración.
  *
- * Muestra los cinco indicadores principales y dos gráficos: los ingresos de los
- * últimos doce meses y los productos por categoría. Los datos se cargan en
+ * Muestra los cinco indicadores principales, los indicadores y gráficos filtrables
+ * por periodo y estado, y el feed de actividad en vivo. Los datos se cargan en
  * paralelo desde {@link DashboardStore}; mientras llegan se muestra un spinner
  * y, si la carga falla, un aviso con el botón «Reintentar».
+ *
+ * Los filtros son señales que recalculan los `computed` sobre los pedidos ya
+ * cargados, sin volver a pedir datos.
  */
 @Component({
   selector: 'app-dashboard',
@@ -43,28 +78,53 @@ interface KpiCard {
     IonSpinner,
     IonText,
     IonButton,
+    IonButtons,
+    IonBadge,
+    IonIcon,
     StatCardComponent,
     ChartComponent,
+    EmptyStateComponent,
+    ActivityFeedComponent,
+    OrderStatusFilterComponent,
   ],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage implements OnInit, OnDestroy {
   /** Estado del dashboard (KPIs, series, actividad, carga y error). */
   readonly store = inject(DashboardStore);
 
-  /** Meses que abarca la ventana temporal del dashboard. */
-  protected readonly months = DASHBOARD_MONTHS;
+  /** Emite el formato pedido al exportar el resumen; la generación llega en F6. */
+  readonly exportRequested = output<'csv' | 'pdf'>();
+
+  /** Periodos disponibles en el filtro. */
+  protected readonly periods = DASHBOARD_PERIODS;
+
+  /** Periodo seleccionado, en meses. */
+  protected readonly period = signal<DashboardPeriod>(12);
+
+  /** Estado seleccionado; `null` representa «todos los estados». */
+  protected readonly status = signal<OrderStatus | null>(null);
+
+  /** Pedidos ya cargados que cumplen los filtros. */
+  protected readonly filteredOrders = computed(() =>
+    filterOrders(this.store.orders(), { months: this.period(), status: this.status() }),
+  );
 
   /** Etiqueta accesible del gráfico de ingresos. */
-  protected readonly revenueAriaLabel = `Ingresos por mes de los últimos ${DASHBOARD_MONTHS} meses`;
+  protected readonly revenueAriaLabel = computed(() => `Ingresos por mes de los últimos ${this.period()} meses`);
+
+  /** Etiqueta accesible del gráfico de pedidos por estado. */
+  protected readonly statusAriaLabel = computed(() => `Pedidos por estado de los últimos ${this.period()} meses`);
 
   /** Etiqueta accesible del gráfico de productos por categoría. */
   protected readonly categoryAriaLabel = 'Productos por categoría';
 
   private readonly integerFormat = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 });
   private readonly currencyFormat = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+
+  private liveSubscription: Subscription | null = null;
 
   /** Tarjetas de los cinco indicadores, ya formateadas. */
   protected readonly kpiCards = computed<readonly KpiCard[]>(() => {
@@ -104,10 +164,55 @@ export class DashboardPage implements OnInit {
     ];
   });
 
-  /** Serie de ingresos mensuales de la ventana temporal del dashboard. */
+  /** Tarjetas de los indicadores que dependen de los filtros. */
+  protected readonly periodCards = computed<readonly KpiCard[]>(() => {
+    const totals = periodTotals(this.filteredOrders());
+
+    return [
+      {
+        title: 'Pedidos del periodo',
+        value: this.integerFormat.format(totals.orders),
+        icon: 'cart-outline',
+        hint: 'Según los filtros',
+      },
+      {
+        title: 'Ingresos del periodo',
+        value: this.currencyFormat.format(totals.revenue),
+        icon: 'cash-outline',
+        hint: 'Sin contar los cancelados',
+      },
+      {
+        title: 'Importe medio',
+        value: this.currencyFormat.format(totals.averageTicket),
+        icon: 'receipt-outline',
+        hint: 'Por pedido no cancelado',
+      },
+    ];
+  });
+
+  /** Resultado de los filtros, anunciado a lectores de pantalla. */
+  protected readonly filterSummary = computed(() => {
+    const count = this.filteredOrders().length;
+    const status = this.status();
+    const orders = `${this.integerFormat.format(count)} ${count === 1 ? 'pedido' : 'pedidos'}`;
+    const suffix = status === null ? '' : `, estado ${ORDER_STATUS_LABELS[status].toLowerCase()}`;
+    return `${orders} en los últimos ${this.period()} meses${suffix}.`;
+  });
+
+  /** Texto accesible del contador de eventos nuevos. */
+  protected readonly newEventsLabel = computed(() => {
+    const count = this.store.newEvents();
+    if (count === 0) return 'Sin eventos nuevos';
+    return `${count} ${count === 1 ? 'evento nuevo' : 'eventos nuevos'}. Marcar como vistos`;
+  });
+
+  /** Serie de ingresos mensuales del periodo seleccionado. */
   protected readonly revenueSeries = computed<ChartSeries>(() =>
-    monthlyRevenueSeries(this.store.orders(), DASHBOARD_MONTHS),
+    monthlyRevenueSeries(this.filteredOrders(), this.period()),
   );
+
+  /** Serie de pedidos por estado del periodo seleccionado. */
+  protected readonly statusSeries = computed<ChartSeries>(() => ordersByStatusSeries(this.filteredOrders()));
 
   /** Serie de productos por categoría. */
   protected readonly categorySeries = computed<ChartSeries>(() => productsByCategorySeries(this.store.byCategory()));
@@ -125,6 +230,20 @@ export class DashboardPage implements OnInit {
         fill: true,
         tension: 0.35,
         pointRadius: 3,
+      },
+    ],
+  }));
+
+  /** Datos del gráfico de rosquilla, con un color fijo por estado. */
+  protected readonly statusData = computed<ChartData<'doughnut'>>(() => ({
+    labels: this.statusSeries().labels,
+    datasets: [
+      {
+        label: 'Pedidos',
+        data: this.statusSeries().values,
+        backgroundColor: ['#b45309', '#0054e9', '#0f766e', '#b91c1c'],
+        borderColor: '#ffffff',
+        borderWidth: 2,
       },
     ],
   }));
@@ -157,6 +276,13 @@ export class DashboardPage implements OnInit {
     },
   };
 
+  /** Opciones del gráfico de pedidos por estado. */
+  protected readonly statusOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' } },
+  };
+
   /** Opciones del gráfico de productos por categoría. */
   protected readonly categoryOptions: ChartOptions<'bar'> = {
     responsive: true,
@@ -171,16 +297,40 @@ export class DashboardPage implements OnInit {
   };
 
   constructor() {
-    addIcons({ cubeOutline, peopleOutline, cartOutline, cashOutline, alertCircleOutline });
+    addIcons({
+      cubeOutline,
+      peopleOutline,
+      cartOutline,
+      cashOutline,
+      alertCircleOutline,
+      receiptOutline,
+      notificationsOutline,
+    });
   }
 
-  /** Carga los datos del dashboard al entrar en la pantalla. */
+  /** Abre la actividad en vivo y carga los datos al entrar en la pantalla. */
   ngOnInit(): void {
+    this.liveSubscription = this.store.connectActivity();
     void this.store.load();
+  }
+
+  /** Cancela la suscripción a la actividad en vivo. */
+  ngOnDestroy(): void {
+    this.liveSubscription?.unsubscribe();
   }
 
   /** Vuelve a intentar la carga tras un error. */
   protected retry(): void {
     void this.store.load();
+  }
+
+  /**
+   * Actualiza el periodo cuando el usuario cambia la selección.
+   *
+   * @param event Evento `change` del elemento `select`
+   */
+  protected onPeriodChange(event: Event): void {
+    const selected = (event.target as HTMLSelectElement).value;
+    this.period.set(DASHBOARD_PERIODS.find((months) => String(months) === selected) ?? 12);
   }
 }
