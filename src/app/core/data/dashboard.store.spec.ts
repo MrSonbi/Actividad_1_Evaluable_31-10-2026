@@ -54,8 +54,19 @@ describe('DashboardStore', () => {
     productsByCategory: ReturnType<typeof vi.fn>;
   };
   let ordersApi: { listAll: ReturnType<typeof vi.fn> };
-  let documents: { latest: ReturnType<typeof vi.fn> };
+  let documents: { latest: ReturnType<typeof vi.fn>; changes$: ReturnType<typeof vi.fn> };
+  let changes: Subject<DocumentRecord<ActivityData>>;
   let store: InstanceType<typeof DashboardStore>;
+
+  /**
+   * Construye un documento de actividad de prueba.
+   *
+   * @param id Identificador del documento
+   * @param at Fecha ISO 8601 del evento
+   */
+  function activity(id: string, at: string): DocumentRecord<ActivityData> {
+    return { ...ACTIVITY, id, data: { ...ACTIVITY.data, at } };
+  }
 
   beforeEach(() => {
     dashboardApi = {
@@ -63,7 +74,8 @@ describe('DashboardStore', () => {
       productsByCategory: vi.fn(() => of(BY_CATEGORY)),
     };
     ordersApi = { listAll: vi.fn(() => of([ORDER])) };
-    documents = { latest: vi.fn(() => of([ACTIVITY])) };
+    changes = new Subject<DocumentRecord<ActivityData>>();
+    documents = { latest: vi.fn(() => of([ACTIVITY])), changes$: vi.fn(() => changes) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -148,6 +160,93 @@ describe('DashboardStore', () => {
     expect(store.hasError()).toBe(false);
     expect(store.kpis()).toEqual(KPIS);
     expect(dashboardApi.kpis).toHaveBeenCalledTimes(2);
+  });
+
+  describe('actividad en vivo', () => {
+    it('escucha la colección de actividad y añade cada evento al principio del feed', async () => {
+      await store.load();
+      const subscription = store.connectActivity();
+
+      changes.next(activity('doc-2', '2026-10-02T09:00:00.000Z'));
+
+      expect(documents.changes$).toHaveBeenCalledWith('activity');
+      expect(store.latestActivity().map((item) => item.id)).toEqual(['doc-2', 'doc-1']);
+      expect(store.newEvents()).toBe(1);
+      subscription.unsubscribe();
+    });
+
+    it('no duplica ni cuenta un evento que ya está en el feed', async () => {
+      await store.load();
+      const subscription = store.connectActivity();
+
+      changes.next(ACTIVITY);
+
+      expect(store.latestActivity()).toHaveLength(1);
+      expect(store.newEvents()).toBe(0);
+      subscription.unsubscribe();
+    });
+
+    it('conserva un evento recibido mientras la carga REST sigue en curso', async () => {
+      const latest = new Subject<DocumentRecord<ActivityData>[]>();
+      documents.latest.mockReturnValue(latest);
+      const subscription = store.connectActivity();
+      const loading = store.load();
+
+      changes.next(activity('doc-2', '2026-10-02T09:00:00.000Z'));
+      latest.next([ACTIVITY]);
+      latest.complete();
+      await loading;
+
+      expect(store.latestActivity().map((item) => item.id)).toEqual(['doc-2', 'doc-1']);
+      subscription.unsubscribe();
+    });
+
+    it('limita el feed a las 20 entradas más recientes', () => {
+      const subscription = store.connectActivity();
+
+      for (let day = 1; day <= 21; day++) {
+        changes.next(activity(`doc-${day}`, `2026-10-${String(day).padStart(2, '0')}T09:00:00.000Z`));
+      }
+
+      expect(store.latestActivity()).toHaveLength(20);
+      expect(store.latestActivity()[0].id).toBe('doc-21');
+      expect(store.latestActivity().some((item) => item.id === 'doc-1')).toBe(false);
+      subscription.unsubscribe();
+    });
+
+    it('pone el contador a cero al marcar los eventos como vistos y al reconectar', () => {
+      const subscription = store.connectActivity();
+      changes.next(activity('doc-2', '2026-10-02T09:00:00.000Z'));
+      expect(store.newEvents()).toBe(1);
+
+      store.markEventsSeen();
+      expect(store.newEvents()).toBe(0);
+
+      changes.next(activity('doc-3', '2026-10-03T09:00:00.000Z'));
+      subscription.unsubscribe();
+      store.connectActivity().unsubscribe();
+      expect(store.newEvents()).toBe(0);
+    });
+
+    it('deja de recibir eventos al cancelar la suscripción', () => {
+      const subscription = store.connectActivity();
+      expect(changes.observed).toBe(true);
+
+      subscription.unsubscribe();
+
+      expect(changes.observed).toBe(false);
+    });
+
+    it('guarda un aviso si falla el canal, sin afectar a la carga', async () => {
+      await store.load();
+      store.connectActivity();
+
+      changes.error(new Error('canal caído'));
+
+      expect(store.liveError()).toContain('actividad en vivo');
+      expect(store.hasError()).toBe(false);
+      expect(store.latestActivity()).toHaveLength(1);
+    });
   });
 
   it('restablece el estado inicial', async () => {

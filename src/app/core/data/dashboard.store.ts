@@ -1,6 +1,7 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { firstValueFrom, forkJoin } from 'rxjs';
+import type { Subscription } from 'rxjs';
 
 import type { ActivityFeedItem } from '../../shared/models/activity-feed.model';
 import { toErrorMessage } from '../http/api-error';
@@ -29,6 +30,10 @@ interface DashboardState {
   orders: OrderWithCustomer[];
   /** Últimas entradas del registro de actividad. */
   latestActivity: ActivityFeedItem[];
+  /** Eventos recibidos en vivo que el usuario aún no ha marcado como vistos. */
+  newEvents: number;
+  /** Mensaje si no se pudo conectar con la actividad en vivo. */
+  liveError: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -38,6 +43,8 @@ const initialState: DashboardState = {
   byCategory: [],
   orders: [],
   latestActivity: [],
+  newEvents: 0,
+  liveError: null,
   loading: false,
   error: null,
 };
@@ -57,6 +64,22 @@ function toFeedItem(record: DocumentRecord<ActivityData>): ActivityFeedItem {
     actor: record.data.actor,
     at: record.data.at,
   };
+}
+
+/**
+ * Une dos listas de actividad sin duplicados, de la más reciente a la más
+ * antigua. Evita perder o repetir un evento que llegue por Realtime mientras la
+ * carga REST sigue en curso. Las fechas son ISO 8601 en UTC, comparables como texto.
+ *
+ * @param current Entradas ya presentes
+ * @param incoming Entradas nuevas
+ */
+function mergeActivity(
+  current: readonly ActivityFeedItem[],
+  incoming: readonly ActivityFeedItem[],
+): ActivityFeedItem[] {
+  const byId = new Map([...current, ...incoming].map((item) => [item.id, item]));
+  return [...byId.values()].sort((a, b) => b.at.localeCompare(a.at)).slice(0, ACTIVITY_LIMIT);
 }
 
 /**
@@ -112,13 +135,44 @@ export const DashboardStore = signalStore(
             kpis,
             byCategory,
             orders,
-            latestActivity: latestActivity.map(toFeedItem),
+            latestActivity: mergeActivity(store.latestActivity(), latestActivity.map(toFeedItem)),
             loading: false,
             error: null,
           });
         } catch (error: unknown) {
           patchState(store, { loading: false, error: toErrorMessage(error) });
         }
+      },
+
+      /**
+       * Escucha la actividad en vivo y la añade al feed, sumando cada evento
+       * nuevo al contador. Las señales repintan la vista sin `NgZone.run` porque
+       * la aplicación no usa zone.js.
+       *
+       * @returns Suscripción que la página debe cancelar al destruirse
+       */
+      connectActivity(): Subscription {
+        patchState(store, { newEvents: 0, liveError: null });
+
+        return documents.changes$<ActivityData>(ACTIVITY_COLLECTION).subscribe({
+          next: (record) => {
+            if (store.latestActivity().some((item) => item.id === record.id)) return;
+            patchState(store, {
+              latestActivity: mergeActivity(store.latestActivity(), [toFeedItem(record)]),
+              newEvents: store.newEvents() + 1,
+            });
+          },
+          error: () => {
+            patchState(store, {
+              liveError: 'No se pudo conectar con la actividad en vivo. Recarga la página para volver a intentarlo.',
+            });
+          },
+        });
+      },
+
+      /** Pone a cero el contador de eventos nuevos. */
+      markEventsSeen(): void {
+        patchState(store, { newEvents: 0 });
       },
 
       /** Restablece el estado inicial. */
