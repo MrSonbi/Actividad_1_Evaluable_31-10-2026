@@ -30,6 +30,8 @@ import { ProductsApi } from '../../core/data/sql/products.api';
 import type { ProductInput, ProductWithCategory } from '../../core/models/product.model';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import type { TableColumn } from '../../shared/models/table.model';
+import { ReportService, reportCount } from '../../shared/utils/report/report.service';
+import type { ReportFormat } from '../../shared/utils/report/report.service';
 import { uniqueFieldValidator } from '../../shared/validators/unique-field.validator';
 
 /** Controles del formulario de producto. */
@@ -91,6 +93,7 @@ export class ProductsPage implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly alertController = inject(AlertController);
   private readonly toastController = inject(ToastController);
+  private readonly reports = inject(ReportService);
 
   private readonly formElement = viewChild<ElementRef<HTMLFormElement>>('productForm');
 
@@ -334,6 +337,26 @@ export class ProductsPage implements OnInit {
 
     const native = control.querySelector<HTMLElement>('input, select, textarea, button');
     (native ?? control).focus();
+  }
+
+  /**
+   * Exporta las filas que muestra la tabla, con la búsqueda y el orden aplicados.
+   *
+   * @param format Formato solicitado
+   * @param rows Filas filtradas y ordenadas de la tabla
+   */
+  protected async onExport(format: ReportFormat, rows: readonly ProductWithCategory[]): Promise<void> {
+    try {
+      await this.reports.exportTable(format, {
+        title: 'Catálogo de productos',
+        subtitle: reportCount(rows.length),
+        columns: this.columns,
+        rows,
+        filename: 'productos',
+      });
+    } catch {
+      await this.toast('No se pudo generar el informe.', 'danger');
+    }
   }
 
   /**

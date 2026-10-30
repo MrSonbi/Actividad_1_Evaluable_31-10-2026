@@ -26,15 +26,16 @@
   }
 
   <app-data-table
+    #table
     [columns]="columns"
     [rows]="store.items()"
     [loading]="store.loading()"
     [pageSize]="10"
     caption="Directorio de clientes"
-    [exportable]="false"
     [selectable]="false"
     [editable]="true"
     [removable]="authStore.isAdmin()"
+    (exportRequested)="onExport($event, table.sortedRows())"
     (edit)="openEdit($event)"
     (remove)="confirmRemove($event)"
   />

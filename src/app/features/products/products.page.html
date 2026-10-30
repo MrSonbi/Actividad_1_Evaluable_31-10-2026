@@ -28,15 +28,16 @@
   }
 
   <app-data-table
+    #table
     [columns]="columns"
     [rows]="store.items()"
     [loading]="store.loading()"
     [pageSize]="10"
     caption="Catálogo de productos"
-    [exportable]="false"
     [selectable]="false"
     [editable]="authStore.isAdmin()"
     [removable]="authStore.isAdmin()"
+    (exportRequested)="onExport($event, table.sortedRows())"
     (edit)="openEdit($event)"
     (remove)="confirmRemove($event)"
   />
