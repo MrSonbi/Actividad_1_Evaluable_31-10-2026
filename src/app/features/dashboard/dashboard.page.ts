@@ -1,5 +1,5 @@
 import type { OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { ViewWillEnter } from '@ionic/angular/standalone';
 import {
   IonBadge,
@@ -12,6 +12,7 @@ import {
   IonText,
   IonTitle,
   IonToolbar,
+  ToastController,
 } from '@ionic/angular/standalone';
 import type { ChartData, ChartOptions } from 'chart.js';
 import { addIcons } from 'ionicons';
@@ -33,6 +34,9 @@ import { ActivityFeedComponent } from '../../shared/components/activity-feed/act
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import type { TableColumn } from '../../shared/models/table.model';
+import { ReportService } from '../../shared/utils/report/report.service';
+import type { ReportFormat } from '../../shared/utils/report/report.service';
 import { OrderStatusFilterComponent } from '../orders/order-status-filter/order-status-filter.component';
 
 import {
@@ -56,6 +60,23 @@ interface KpiCard {
   /** Nota aclaratoria. */
   hint: string;
 }
+
+/** Fila del resumen exportable del dashboard. */
+interface SummaryRow {
+  /** Bloque al que pertenece el dato. */
+  section: string;
+  /** Nombre del dato. */
+  indicator: string;
+  /** Valor ya formateado. */
+  value: string;
+}
+
+/** Columnas del resumen exportable. */
+const SUMMARY_COLUMNS: readonly TableColumn<SummaryRow>[] = [
+  { key: 'section', label: 'Sección' },
+  { key: 'indicator', label: 'Indicador' },
+  { key: 'value', label: 'Valor' },
+];
 
 /**
  * Dashboard de administración.
@@ -96,8 +117,8 @@ export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
   /** Estado del dashboard (KPIs, series, actividad, carga y error). */
   readonly store = inject(DashboardStore);
 
-  /** Emite el formato pedido al exportar el resumen; la generación llega en F6. */
-  readonly exportRequested = output<'csv' | 'pdf'>();
+  private readonly reports = inject(ReportService);
+  private readonly toastController = inject(ToastController);
 
   /** Periodos disponibles en el filtro. */
   protected readonly periods = DASHBOARD_PERIODS;
@@ -267,6 +288,37 @@ export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
     ],
   }));
 
+  /** Datos que se exportan: lo que muestran las tarjetas y los gráficos. */
+  private readonly summaryRows = computed<readonly SummaryRow[]>(() => {
+    const revenue = this.revenueSeries();
+    const status = this.statusSeries();
+    const category = this.categorySeries();
+
+    return [
+      ...this.kpiCards().map((card) => ({
+        section: 'Indicadores generales',
+        indicator: card.title,
+        value: card.value,
+      })),
+      ...this.periodCards().map((card) => ({ section: 'Periodo', indicator: card.title, value: card.value })),
+      ...revenue.labels.map((label, index) => ({
+        section: 'Ingresos por mes',
+        indicator: label,
+        value: this.currencyFormat.format(revenue.values[index]),
+      })),
+      ...status.labels.map((label, index) => ({
+        section: 'Pedidos por estado',
+        indicator: label,
+        value: this.integerFormat.format(status.values[index]),
+      })),
+      ...category.labels.map((label, index) => ({
+        section: 'Productos por categoría',
+        indicator: label,
+        value: this.integerFormat.format(category.values[index]),
+      })),
+    ];
+  });
+
   /** Opciones del gráfico de ingresos. */
   protected readonly revenueOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -333,6 +385,31 @@ export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
   /** Cancela la suscripción a la actividad en vivo. */
   ngOnDestroy(): void {
     this.liveSubscription?.unsubscribe();
+  }
+
+  /**
+   * Exporta el resumen del dashboard con los filtros aplicados.
+   *
+   * @param format Formato solicitado
+   */
+  protected async exportSummary(format: ReportFormat): Promise<void> {
+    try {
+      await this.reports.exportTable(format, {
+        title: 'Resumen del dashboard',
+        subtitle: this.filterSummary(),
+        columns: SUMMARY_COLUMNS,
+        rows: this.summaryRows(),
+        filename: 'dashboard',
+      });
+    } catch {
+      const toast = await this.toastController.create({
+        message: 'No se pudo generar el informe.',
+        duration: 3500,
+        color: 'danger',
+        position: 'bottom',
+      });
+      await toast.present();
+    }
   }
 
   /** Vuelve a intentar la carga tras un error. */
