@@ -1,9 +1,9 @@
 import type { HttpErrorResponse } from '@angular/common/http';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry, throwError, timer } from 'rxjs';
+import { EMPTY, of, retry, throwError, timer } from 'rxjs';
 import type { MonoTypeOperatorFunction, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, expand, last, map } from 'rxjs/operators';
 
 import { ENVIRONMENT } from '../../config/environment.token';
 
@@ -36,6 +36,20 @@ const MAX_RETRIES = 2;
 
 /** Espera base del backoff exponencial (ms). */
 const RETRY_BASE_DELAY = 250;
+
+/** Filas solicitadas por bloque al recuperar una lista completa. */
+export const FETCH_CHUNK_SIZE = 500;
+
+/** Número máximo de bloques, para evitar un bucle si el servidor ignorase `Range`. */
+const MAX_FETCH_BLOCKS = 1000;
+
+/** Estado interno de {@link RestClient.listAll} mientras acumula bloques. */
+interface FetchAllState<T> {
+  rows: T[];
+  total: number | null;
+  nextOffset: number | null;
+  blocks: number;
+}
 
 /**
  * Indica si un error merece reintento: fallo de red o error 5xx.
@@ -70,6 +84,46 @@ export function parseContentRangeTotal(header: string | null): number | null {
   if (!total || total === '*') return null;
   const parsed = Number.parseInt(total, 10);
   return Number.isNaN(parsed) ? null : parsed;
+}
+
+/**
+ * Indica si el error corresponde a un `Range` que empieza más allá del último
+ * registro (`416 Requested Range Not Satisfiable`).
+ *
+ * @param error Error emitido por `HttpClient` (normalizado o no)
+ */
+function isRangeNotSatisfiable(error: unknown): boolean {
+  if (!(error instanceof Object) || !('status' in error)) return false;
+  return (error as { status: unknown }).status === 416;
+}
+
+/**
+ * Calcula el desplazamiento del siguiente bloque o `null` si ya se han
+ * recuperado todas las filas.
+ *
+ * @param received Filas devueltas por el bloque actual
+ * @param total Total informado por `Content-Range` (o `null` si no se conoce)
+ * @param offset Desplazamiento del bloque actual
+ * @param size Filas solicitadas por bloque
+ * @param blocks Bloques recuperados hasta el momento
+ */
+function nextOffset(
+  received: number,
+  total: number | null,
+  offset: number,
+  size: number,
+  blocks: number,
+): number | null {
+  if (received === 0) return null;
+
+  if (total !== null) {
+    const fetched = offset + received;
+    return fetched >= total ? null : fetched;
+  }
+
+  if (received < size) return null;
+  if (blocks >= MAX_FETCH_BLOCKS) return null;
+  return offset + size;
 }
 
 /**
@@ -122,6 +176,62 @@ export class RestClient {
           total: parseContentRangeTotal(response.headers.get('content-range')),
         })),
       );
+  }
+
+  /**
+   * Recupera **todas** las filas de una tabla o vista, pidiéndolas por bloques
+   * con `Range` hasta alcanzar el total informado en `Content-Range`.
+   *
+   * PostgREST limita el número de filas por respuesta (1000 por defecto), por
+   * lo que una única petición no basta para listados grandes. Cada bloque pide
+   * `Prefer: count=exact` y la lectura termina cuando:
+   *
+   * - las filas acumuladas alcanzan el total de `Content-Range`, o
+   * - llega un bloque incompleto (último bloque), o
+   * - el servidor responde `416` porque el desplazamiento ya no existe.
+   *
+   * @param table Nombre de la tabla o vista
+   * @param options Columnas, filtros y orden (la paginación la calcula este método)
+   * @param chunkSize Filas solicitadas por bloque
+   */
+  listAll<T>(table: string, options: QueryOptions = {}, chunkSize: number = FETCH_CHUNK_SIZE): Observable<T[]> {
+    const size = Math.max(1, Math.trunc(chunkSize));
+
+    const fetchBlock = (offset: number): Observable<PagedResult<T>> =>
+      this.page<T>(table, { ...options, limit: size, offset });
+
+    return fetchBlock(0).pipe(
+      map(
+        ({ rows, total }): FetchAllState<T> => ({
+          rows,
+          total,
+          nextOffset: nextOffset(rows.length, total, 0, size, 1),
+          blocks: 1,
+        }),
+      ),
+      expand((state) => {
+        const offset = state.nextOffset;
+        if (offset === null) return EMPTY;
+
+        return fetchBlock(offset).pipe(
+          map(({ rows, total }): FetchAllState<T> => {
+            const rowsSoFar = [...state.rows, ...rows];
+            const knownTotal = state.total ?? total;
+            return {
+              rows: rowsSoFar,
+              total: knownTotal,
+              nextOffset: nextOffset(rows.length, knownTotal, offset, size, state.blocks + 1),
+              blocks: state.blocks + 1,
+            };
+          }),
+          catchError((error: unknown) =>
+            isRangeNotSatisfiable(error) ? of({ ...state, nextOffset: null }) : throwError(() => error),
+          ),
+        );
+      }),
+      last(),
+      map((state) => state.rows),
+    );
   }
 
   /**

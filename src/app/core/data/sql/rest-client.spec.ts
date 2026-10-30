@@ -73,6 +73,90 @@ describe('RestClient', () => {
     await expect(promise).resolves.toEqual({ rows: [], total: 0 });
   });
 
+  it('recupera la lista completa pidiendo bloques con Range hasta el total', async () => {
+    const promise = firstValueFrom(client.listAll<{ id: number }>('orders', {}, 2));
+    const url = (r: { url: string }) => r.url === `${BASE}/orders`;
+
+    const first = httpMock.expectOne(url);
+    expect(first.request.headers.get('Range')).toBe('0-1');
+    expect(first.request.headers.get('Prefer')).toBe('count=exact');
+    expect(first.request.params.get('limit')).toBe('2');
+    first.flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/5' } });
+
+    const second = httpMock.expectOne(url);
+    expect(second.request.headers.get('Range')).toBe('2-3');
+    second.flush([{ id: 3 }, { id: 4 }], { headers: { 'Content-Range': '2-3/5' } });
+
+    const third = httpMock.expectOne(url);
+    expect(third.request.headers.get('Range')).toBe('4-5');
+    third.flush([{ id: 5 }], { headers: { 'Content-Range': '4-4/5' } });
+
+    await expect(promise).resolves.toEqual([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }]);
+    httpMock.expectNone(url);
+  });
+
+  it('sigue pidiendo bloques si el servidor devuelve menos filas que las solicitadas', async () => {
+    const promise = firstValueFrom(client.listAll<{ id: number }>('orders', {}, 500));
+    const url = (r: { url: string }) => r.url === `${BASE}/orders`;
+
+    const firstRows = Array.from({ length: 100 }, (_, index) => ({ id: index + 1 }));
+    httpMock.expectOne(url).flush(firstRows, { headers: { 'Content-Range': '0-99/150' } });
+
+    const second = httpMock.expectOne(url);
+    expect(second.request.headers.get('Range')).toBe('100-599');
+    const secondRows = Array.from({ length: 50 }, (_, index) => ({ id: index + 101 }));
+    second.flush(secondRows, { headers: { 'Content-Range': '100-149/150' } });
+
+    const rows = await promise;
+    expect(rows).toHaveLength(150);
+    expect(rows[149]).toEqual({ id: 150 });
+    httpMock.expectNone(url);
+  });
+
+  it('deja de pedir bloques cuando alcanza el total de Content-Range', async () => {
+    const promise = firstValueFrom(client.listAll<{ id: number }>('products', {}, 2));
+    const url = (r: { url: string }) => r.url === `${BASE}/products`;
+
+    httpMock
+      .expectOne(url)
+      .flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/2' } });
+
+    await expect(promise).resolves.toEqual([{ id: 1 }, { id: 2 }]);
+    httpMock.expectNone(url);
+  });
+
+  it('recupera la lista completa cuando el servidor no informa del total', async () => {
+    const promise = firstValueFrom(client.listAll<{ id: number }>('customers', {}, 2));
+    const url = (r: { url: string }) => r.url === `${BASE}/customers`;
+
+    httpMock
+      .expectOne(url)
+      .flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/*' } });
+
+    const second = httpMock.expectOne(url);
+    expect(second.request.headers.get('Range')).toBe('2-3');
+    second.flush([{ id: 3 }], { headers: { 'Content-Range': '2-2/*' } });
+
+    await expect(promise).resolves.toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+    httpMock.expectNone(url);
+  });
+
+  it('detiene la carga si el servidor responde 416 al bloque solicitado', async () => {
+    const promise = firstValueFrom(client.listAll<{ id: number }>('orders', {}, 2));
+    const url = (r: { url: string }) => r.url === `${BASE}/orders`;
+
+    httpMock
+      .expectOne(url)
+      .flush([{ id: 1 }, { id: 2 }], { headers: { 'Content-Range': '0-1/4' } });
+
+    httpMock
+      .expectOne(url)
+      .flush({ message: 'Requested Range Not Satisfiable' }, { status: 416, statusText: 'Range Not Satisfiable' });
+
+    await expect(promise).resolves.toEqual([{ id: 1 }, { id: 2 }]);
+    httpMock.expectNone(url);
+  });
+
   it('crea con Prefer: return=representation y devuelve la fila guardada', async () => {
     const promise = firstValueFrom(client.create<{ id: number; name: string }>('products', { name: 'Teclado' }));
 
