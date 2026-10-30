@@ -22,12 +22,13 @@
   <app-order-status-filter [(value)]="status" (valueChange)="onStatusChange($event)" />
 
   <app-data-table
+    #table
     [columns]="columns"
     [rows]="rows()"
     [loading]="store.loading()"
     [pageSize]="10"
     caption="Listado de pedidos"
-    [exportable]="false"
     [selectable]="false"
+    (exportRequested)="onExport($event, table.sortedRows())"
   />
 </ion-content>
