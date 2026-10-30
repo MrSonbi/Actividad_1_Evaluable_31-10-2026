@@ -1,0 +1,9 @@
+<div class="status-filter">
+  <label class="status-filter__label" for="orders-status">Estado</label>
+  <select id="orders-status" class="status-filter__select" (change)="onChange($event)">
+    <option value="" [selected]="value() === null">Todos los estados</option>
+    @for (status of statuses; track status) {
+      <option [value]="status" [selected]="value() === status">{{ labels[status] }}</option>
+    }
+  </select>
+</div>

@@ -33,11 +33,8 @@ export const routes: Routes = [
         loadComponent: () => import('./features/customers/customers.page').then((m) => m.CustomersPage),
       },
       {
-        path: 'components-demo',
-        loadComponent: () =>
-          import('./features/components-demo/components-demo.page').then((m) => m.ComponentsDemoPage),
-        canActivate: [roleGuard(['admin'])],
-        canMatch: [roleGuard(['admin'])],
+        path: 'orders',
+        loadComponent: () => import('./features/orders/orders.page').then((m) => m.OrdersPage),
       },
     ],
   },

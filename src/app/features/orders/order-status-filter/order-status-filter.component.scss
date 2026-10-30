@@ -1,0 +1,26 @@
+.status-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 16rem;
+  margin-bottom: 1rem;
+}
+
+.status-filter__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.status-filter__select {
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--ion-color-medium, #6c757d);
+  border-radius: 0.5rem;
+}
+
+.status-filter__select:focus-visible {
+  outline: 2px solid var(--ion-color-primary, #0054e9);
+  outline-offset: 1px;
+}
