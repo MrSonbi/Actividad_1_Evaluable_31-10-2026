@@ -1,8 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F5 · Dashboard (solo admin) (RA5) — F5a con PR #8 abierto; F5b con PR abierto (parte de la rama de F5a)
-- Rama de trabajo: feature/f5b-dashboard
+- Fase actual: F6 · Informes PDF y CSV (RA5) — PR abierto
+- Rama de trabajo: feature/f6-informes
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -18,6 +18,7 @@
 - Fecha inicio F5a: 2026-10-30
 - Fecha fin F5a: 2026-10-30
 - Fecha inicio F5b: 2026-10-30
+- Fecha inicio F6: 2026-10-30
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
@@ -26,7 +27,7 @@
 - [x] F3 · Componentes reutilizables (RA3)
 - [x] F4 · Funcionalidades y formularios (RA2)
 - [ ] F5 · Dashboard (solo admin) (RA5) — F5a y F5b con PR abierto
-- [ ] F6 · Informes PDF y CSV (RA5)
+- [ ] F6 · Informes PDF y CSV (RA5) — PR abierto
 - [ ] F7 · Accesibilidad, responsive y PWA (RA4)
 - [ ] F8 · Documentación (RA6)
 - [ ] F9 · CI/CD y despliegue (RA7)
@@ -78,6 +79,9 @@
 - F5b: `app-order-status-filter` genera un `id` por instancia: Ionic mantiene en el DOM las páginas visitadas y el `id` fijo se repetía entre pedidos y dashboard, dejando sin etiqueta al segundo selector.
 - Fix dashboard: `app-chart` aplica la altura a un contenedor `position: relative` que envuelve al lienzo y fuerza `maintainAspectRatio: false`, de modo que Chart.js ya no redimensiona el gráfico según su contenido. El estado vacío de la rosquilla ocupa la misma altura (18rem).
 - Fix dashboard: `DashboardStore.refresh()` recarga KPIs, categorías y pedidos sin `loading`; si falla, conserva los datos. Se lanza al volver a la página (`ionViewWillEnter`, salvo la primera entrada) y 1 s después de la última actividad en vivo. El feed no se recarga porque lo mantiene Realtime. Las respuestas de peticiones antiguas se descartan con `_requestId`.
+- F6: `ReportService` (`shared/utils/report`) genera CSV (`buildCsv`: UTF-8 con BOM, `;`, CRLF y comillas escapadas) y PDF (jsPDF + AutoTable: cabecera con título, fecha y usuario, filas alternas y «Página X de Y»). Las bibliotecas de PDF se cargan bajo demanda mediante el token `PDF_LIBRARY`, sustituible en tests.
+- F6: los listados exportan `app-data-table.sortedRows()`, ahora pública: todas las páginas con búsqueda, filtro y orden aplicados. Los botones se desactivan si no hay filas o la tabla está cargando. El dashboard exporta un resumen (indicadores y series) con sus filtros y deja de tener el output `exportRequested`.
+- F6: en CSV los importes van sin símbolo ni miles para que sigan siendo números, y los textos que empiezan por `= + - @` llevan un apóstrofo para que Excel no los ejecute como fórmula (también afecta a teléfonos con `+`).
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -93,3 +97,4 @@
 - 2026-10-30: F5a completada - `DashboardStore` con `forkJoin`, KPIs y dos gráficos accesibles en `/dashboard`, filtro `createdFrom` en `OrdersApi`, helpers de series y tests del store, de las series y de la página. Pendiente de que el usuario ejecute lint/test/build y de F5b.
 - 2026-10-30: F5b con PR abierto - filtros en memoria, KPIs del periodo, rosquilla por estado, feed en vivo con contador, botones de exportación que emiten el evento y tests. La rama parte de `feature/f5a-dashboard` porque el PR #8 sigue abierto. Sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: Fix `fix/dashboard-chart-kpis` con PR abierto - altura estable de los gráficos al filtrar y recarga silenciosa de los datos del dashboard al volver a la página y con la actividad en vivo (debounce de 1 s). Tests ampliados, sin ejecutar lint/test/build (los ejecuta el usuario).
+- 2026-10-30: F6 con PR abierto - `ReportService` con CSV y PDF conectado a productos, clientes, pedidos y dashboard, con tests. Sin ejecutar lint/test/build (los ejecuta el usuario).
