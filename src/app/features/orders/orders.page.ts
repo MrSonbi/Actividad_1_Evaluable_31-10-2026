@@ -1,12 +1,14 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { IonContent, IonHeader, IonText, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonText, IonTitle, IonToolbar, ToastController } from '@ionic/angular/standalone';
 
 import { OrdersStore } from '../../core/data/orders.store';
 import type { OrderStatus, OrderWithCustomer } from '../../core/models/order.model';
 import { ORDER_STATUS_LABELS } from '../../core/models/order.model';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import type { TableColumn } from '../../shared/models/table.model';
+import { ReportService, reportCount } from '../../shared/utils/report/report.service';
+import type { ReportFormat } from '../../shared/utils/report/report.service';
 
 import { OrderStatusFilterComponent } from './order-status-filter/order-status-filter.component';
 
@@ -33,6 +35,9 @@ interface OrderTableRow extends OrderWithCustomer {
 export class OrdersPage implements OnInit {
   /** Estado de los pedidos (listado, filtro, carga y error). */
   readonly store = inject(OrdersStore);
+
+  private readonly toastController = inject(ToastController);
+  private readonly reports = inject(ReportService);
 
   /** Estado seleccionado en el filtro; `null` muestra todos. */
   protected readonly status = signal<OrderStatus | null>(this.store.status());
@@ -66,5 +71,42 @@ export class OrdersPage implements OnInit {
    */
   protected onStatusChange(status: OrderStatus | null): void {
     void this.store.setStatus(status);
+  }
+
+  /**
+   * Exporta las filas que muestra la tabla, con la búsqueda y el orden aplicados.
+   *
+   * @param format Formato solicitado
+   * @param rows Filas filtradas y ordenadas de la tabla
+   */
+  protected async onExport(format: ReportFormat, rows: readonly OrderTableRow[]): Promise<void> {
+    try {
+      await this.reports.exportTable(format, {
+        title: 'Listado de pedidos',
+        subtitle: this.exportSubtitle(rows.length),
+        columns: this.columns,
+        rows,
+        filename: 'pedidos',
+      });
+    } catch {
+      const toast = await this.toastController.create({
+        message: 'No se pudo generar el informe.',
+        duration: 3500,
+        color: 'danger',
+        position: 'bottom',
+      });
+      await toast.present();
+    }
+  }
+
+  /**
+   * Describe el filtro de estado y el número de registros del informe.
+   *
+   * @param count Número de filas exportadas
+   */
+  private exportSubtitle(count: number): string {
+    const status = this.status();
+    const filter = status === null ? 'Todos los estados' : `Estado: ${ORDER_STATUS_LABELS[status]}`;
+    return `${filter} · ${reportCount(count)}`;
   }
 }

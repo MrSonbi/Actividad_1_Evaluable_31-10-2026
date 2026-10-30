@@ -52,10 +52,10 @@
       <app-order-status-filter [(value)]="status" />
     </div>
     <div class="filters__export">
-      <ion-button fill="outline" size="small" data-export="pdf" (click)="exportRequested.emit('pdf')">
+      <ion-button fill="outline" size="small" data-export="pdf" (click)="exportSummary('pdf')">
         Exportar PDF
       </ion-button>
-      <ion-button fill="outline" size="small" data-export="csv" (click)="exportRequested.emit('csv')">
+      <ion-button fill="outline" size="small" data-export="csv" (click)="exportSummary('csv')">
         Exportar CSV
       </ion-button>
     </div>

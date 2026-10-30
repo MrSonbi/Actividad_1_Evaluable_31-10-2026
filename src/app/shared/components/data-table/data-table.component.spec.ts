@@ -146,6 +146,60 @@ describe('DataTableComponent', () => {
     expect(removed).toHaveBeenCalledWith(rows[0]);
   });
 
+  describe('exportación', () => {
+    /** Botones de exportación: CSV y PDF. */
+    function exportButtons(): HTMLButtonElement[] {
+      return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.export-button'));
+    }
+
+    /**
+     * Aplica un texto en el buscador.
+     *
+     * @param value Texto de búsqueda
+     */
+    async function search(value: string): Promise<void> {
+      const input = (fixture.nativeElement as HTMLElement).querySelector('input[type="search"]') as HTMLInputElement;
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it('emite el formato pedido', () => {
+      createTable();
+      const exportSpy = vi.fn();
+      fixture.componentInstance.exportRequested.subscribe(exportSpy);
+
+      exportButtons().forEach((button) => button.click());
+
+      expect(exportSpy.mock.calls.map((call) => call[0])).toEqual(['csv', 'pdf']);
+    });
+
+    it('expone todas las páginas con la búsqueda y el orden aplicados', async () => {
+      createTable(1);
+      await search('a');
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.sort-button')[1].click();
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.sort-button')[1].click();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.sortedRows().map((row) => row.name)).toEqual(['Teclado', 'Ratón']);
+    });
+
+    it('desactiva los botones si la búsqueda no tiene resultados o la tabla está cargando', async () => {
+      createTable();
+      expect(exportButtons().every((button) => !button.disabled)).toBe(true);
+
+      await search('sin coincidencias');
+      expect(exportButtons().every((button) => button.disabled)).toBe(true);
+
+      await search('');
+      fixture.componentRef.setInput('loading', true);
+      fixture.detectChanges();
+      expect(exportButtons().every((button) => button.disabled)).toBe(true);
+    });
+  });
+
   it('muestra el estado de carga y el mensaje de lista vacía', () => {
     createTable();
     fixture.componentRef.setInput('loading', true);

@@ -2,13 +2,14 @@ import { computed, signal } from '@angular/core';
 import type { WritableSignal } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideIonicAngular } from '@ionic/angular/standalone';
+import { ToastController, provideIonicAngular } from '@ionic/angular/standalone';
 import { Subscription } from 'rxjs';
 
 import { DashboardStore } from '../../core/data/dashboard.store';
 import type { DashboardKpis, ProductsByCategory } from '../../core/models/dashboard.model';
 import type { OrderWithCustomer } from '../../core/models/order.model';
 import type { ActivityFeedItem } from '../../shared/models/activity-feed.model';
+import { ReportService } from '../../shared/utils/report/report.service';
 
 import { DashboardPage } from './dashboard.page';
 
@@ -73,6 +74,8 @@ describe('DashboardPage', () => {
   let liveError: WritableSignal<string | null>;
   let latestActivity: WritableSignal<ActivityFeedItem[]>;
   let liveSubscription: Subscription;
+  let reports: { exportTable: ReturnType<typeof vi.fn> };
+  let toasts: { create: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     loading = signal(true);
@@ -81,6 +84,8 @@ describe('DashboardPage', () => {
     liveError = signal<string | null>(null);
     latestActivity = signal<ActivityFeedItem[]>([]);
     liveSubscription = new Subscription();
+    reports = { exportTable: vi.fn(async () => undefined) };
+    toasts = { create: vi.fn() };
     store = {
       kpis: signal<DashboardKpis>(KPIS),
       byCategory: signal<ProductsByCategory[]>(BY_CATEGORY),
@@ -99,7 +104,12 @@ describe('DashboardPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
-      providers: [provideIonicAngular(), { provide: DashboardStore, useValue: store }],
+      providers: [
+        provideIonicAngular(),
+        { provide: DashboardStore, useValue: store },
+        { provide: ToastController, useValue: toasts },
+        { provide: ReportService, useValue: reports },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
@@ -311,16 +321,62 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('emite el formato al pedir la exportación', () => {
-    loading.set(false);
-    fixture.detectChanges();
-    const emitted: string[] = [];
-    fixture.componentInstance.exportRequested.subscribe((format) => emitted.push(format));
+  describe('exportación', () => {
+    beforeEach(() => {
+      loading.set(false);
+      fixture.detectChanges();
+    });
 
-    find('[data-export="pdf"]').dispatchEvent(new Event('click'));
-    find('[data-export="csv"]').dispatchEvent(new Event('click'));
+    /** Filas enviadas en la última exportación. */
+    function exportedRows(): { section: string; indicator: string; value: string }[] {
+      const calls = reports.exportTable.mock.calls;
+      return (calls[calls.length - 1][1] as { rows: { section: string; indicator: string; value: string }[] }).rows;
+    }
 
-    expect(emitted).toEqual(['pdf', 'csv']);
+    it('exporta el resumen con los indicadores y las series en el formato pedido', () => {
+      find('[data-export="pdf"]').dispatchEvent(new Event('click'));
+
+      expect(reports.exportTable).toHaveBeenCalledWith(
+        'pdf',
+        expect.objectContaining({
+          title: 'Resumen del dashboard',
+          filename: 'dashboard',
+          subtitle: expect.stringContaining('2 pedidos'),
+        }),
+      );
+      expect(exportedRows()).toEqual(
+        expect.arrayContaining([
+          { section: 'Indicadores generales', indicator: 'Clientes', value: '4' },
+          { section: 'Periodo', indicator: 'Pedidos del periodo', value: '2' },
+          { section: 'Pedidos por estado', indicator: 'Cancelado', value: '1' },
+          { section: 'Productos por categoría', indicator: 'Monitores', value: '5' },
+        ]),
+      );
+      expect(exportedRows().filter((row) => row.section === 'Ingresos por mes')).toHaveLength(12);
+    });
+
+    it('aplica los filtros al resumen exportado', () => {
+      choose('#dashboard-period', '3');
+      find('[data-export="csv"]').dispatchEvent(new Event('click'));
+
+      expect(reports.exportTable).toHaveBeenCalledWith(
+        'csv',
+        expect.objectContaining({ subtitle: expect.stringContaining('últimos 3 meses') }),
+      );
+      expect(exportedRows()).toContainEqual({ section: 'Periodo', indicator: 'Pedidos del periodo', value: '1' });
+      expect(exportedRows().filter((row) => row.section === 'Ingresos por mes')).toHaveLength(3);
+    });
+
+    it('avisa si el informe no se puede generar', async () => {
+      const present = vi.fn(async () => undefined);
+      toasts.create.mockResolvedValue({ present });
+      reports.exportTable.mockRejectedValue(new Error('sin red'));
+
+      find('[data-export="pdf"]').dispatchEvent(new Event('click'));
+
+      await vi.waitFor(() => expect(present).toHaveBeenCalled());
+      expect(toasts.create).toHaveBeenCalledWith(expect.objectContaining({ color: 'danger' }));
+    });
   });
 
   it('muestra el error y permite reintentar la carga', () => {
