@@ -13,6 +13,11 @@ export interface OrdersQuery {
   pageSize?: number;
   status?: OrderStatus | null;
   customerId?: number | null;
+  /**
+   * Fecha mínima de creación en ISO 8601. Se traduce a
+   * `created_at=gte.<fecha>` para recuperar solo pedidos recientes.
+   */
+  createdFrom?: string;
 }
 
 /** Columnas con el cliente embebido. */
@@ -139,6 +144,9 @@ export class OrdersApi {
     if (query.status) filters['status'] = `eq.${query.status}`;
     if (query.customerId !== undefined && query.customerId !== null) {
       filters['customer_id'] = `eq.${query.customerId}`;
+    }
+    if (query.createdFrom) {
+      filters['created_at'] = `gte.${query.createdFrom}`;
     }
     return filters;
   }

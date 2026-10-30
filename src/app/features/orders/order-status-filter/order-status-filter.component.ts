@@ -3,6 +3,9 @@ import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import type { OrderStatus } from '../../../core/models/order.model';
 import { ORDER_STATUSES, ORDER_STATUS_LABELS } from '../../../core/models/order.model';
 
+/** Contador para que cada instancia tenga un `id` propio en el DOM. */
+let nextSelectId = 0;
+
 /**
  * Selector del estado de los pedidos.
  *
@@ -20,6 +23,12 @@ import { ORDER_STATUSES, ORDER_STATUS_LABELS } from '../../../core/models/order.
 export class OrderStatusFilterComponent {
   /** Estado seleccionado; `null` representa «todos los estados». */
   readonly value = model<OrderStatus | null>(null);
+
+  /**
+   * Identificador del `select`. Ionic mantiene en el DOM las páginas visitadas,
+   * así que pedidos y dashboard pueden tener este filtro a la vez.
+   */
+  protected readonly selectId = `order-status-${nextSelectId++}`;
 
   /** Estados disponibles, en el orden definido por el modelo. */
   protected readonly statuses = ORDER_STATUSES;

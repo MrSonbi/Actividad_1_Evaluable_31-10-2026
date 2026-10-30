@@ -26,6 +26,16 @@ describe('OrderStatusFilterComponent', () => {
     expect(options).toEqual(['Todos los estados', 'Pendiente', 'Pagado', 'Enviado', 'Cancelado']);
   });
 
+  it('asocia la etiqueta a un id propio de cada instancia', () => {
+    const other = TestBed.createComponent(OrderStatusFilterComponent);
+    other.detectChanges();
+    const otherSelect = (other.nativeElement as HTMLElement).querySelector('select');
+    const label = (fixture.nativeElement as HTMLElement).querySelector('label');
+
+    expect(label?.getAttribute('for')).toBe(select().id);
+    expect(otherSelect?.id).not.toBe(select().id);
+  });
+
   it('refleja el valor recibido mediante model()', () => {
     fixture.componentRef.setInput('value', 'paid');
     fixture.detectChanges();
