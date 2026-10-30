@@ -9,10 +9,9 @@ import { ActivityLogService } from './activity-log.service';
 import { OrdersApi } from './sql/orders.api';
 
 interface OrdersState {
+  /** Lista completa de pedidos cargada del servidor. */
   items: OrderWithCustomer[];
-  total: number;
-  page: number;
-  pageSize: number;
+  /** Filtro por estado aplicado en el cliente. */
   status: OrderStatus | null;
   loading: boolean;
   error: string | null;
@@ -20,67 +19,60 @@ interface OrdersState {
 
 const initialState: OrdersState = {
   items: [],
-  total: 0,
-  page: 1,
-  pageSize: 25,
   status: null,
   loading: false,
   error: null,
 };
 
 /**
- * Estado de la feature de pedidos: listado paginado de solo lectura y filtro
- * por estado.
+ * Estado de la feature de pedidos: lista completa de solo lectura y filtro por
+ * estado.
+ *
+ * El store carga todos los pedidos del servidor (por bloques) y el filtro se
+ * aplica en memoria; la ordenación y la paginación visibles también se
+ * resuelven en el cliente sobre esas filas.
  */
 export const OrdersStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
-    isEmpty: computed(() => !store.loading() && store.items().length === 0),
+    /** Pedidos que cumplen el filtro de estado activo. */
+    filteredItems: computed(() => {
+      const status = store.status();
+      return status === null ? store.items() : store.items().filter((order) => order.status === status);
+    }),
+    /** Número de pedidos que cumplen el filtro activo. */
+    total: computed(() => store.filteredItems().length),
+    isEmpty: computed(() => !store.loading() && store.filteredItems().length === 0),
     hasError: computed(() => store.error() !== null),
   })),
   withMethods((store, ordersApi = inject(OrdersApi), activity = inject(ActivityLogService)) => ({
     /**
-     * Carga la página actual aplicando el filtro de estado.
+     * Carga la lista completa de pedidos, pidiendo al servidor todos los
+     * bloques.
      */
     async load(): Promise<void> {
       patchState(store, { loading: true, error: null });
       try {
-        const { rows, total } = await firstValueFrom(
-          ordersApi.page({
-            page: store.page(),
-            pageSize: store.pageSize(),
-            status: store.status(),
-          }),
-        );
-        patchState(store, { items: rows, total: total ?? rows.length, loading: false });
+        const items = await firstValueFrom(ordersApi.listAll());
+        patchState(store, { items, loading: false });
       } catch (error: unknown) {
         patchState(store, { loading: false, error: toErrorMessage(error) });
       }
     },
 
     /**
-     * Filtra por estado y recarga desde la primera página.
+     * Filtra por estado sobre las filas ya cargadas.
      *
      * @param status Estado del pedido o `null` para todos
      */
-    async setStatus(status: OrderStatus | null): Promise<void> {
-      patchState(store, { status, page: 1 });
-      await this.load();
+    setStatus(status: OrderStatus | null): void {
+      patchState(store, { status });
     },
 
     /**
-     * Cambia de página y recarga.
-     *
-     * @param page Número de página (1-based)
-     */
-    async setPage(page: number): Promise<void> {
-      patchState(store, { page: Math.max(page, 1) });
-      await this.load();
-    },
-
-    /**
-     * Cambia el estado de un pedido (solo admin) y registra la actividad.
+     * Cambia el estado de un pedido (solo admin), reemplaza su fila en la
+     * lista y registra la actividad, sin recargar el listado.
      *
      * @param id Identificador del pedido
      * @param status Nuevo estado
@@ -89,8 +81,13 @@ export const OrdersStore = signalStore(
     async updateStatus(id: number, status: OrderStatus): Promise<boolean> {
       try {
         const updated = await firstValueFrom(ordersApi.update(id, { status }));
+        patchState(store, {
+          items: store.items().map((order) =>
+            order.id === id ? { ...order, ...updated, customer_name: order.customer_name } : order,
+          ),
+          error: null,
+        });
         activity.log('update', 'order', id, `Pedido #${id} actualizado a ${status}`);
-        await this.load();
         return updated.id > 0;
       } catch (error: unknown) {
         patchState(store, { error: toErrorMessage(error) });
