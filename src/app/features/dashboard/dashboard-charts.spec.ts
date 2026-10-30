@@ -54,7 +54,7 @@ describe('dashboard-charts', () => {
           order(2026, 8, 10, 100),
           order(2026, 8, 20, 50, 'cancelled'),
           order(2026, 9, 2, 25.5, 'pending'),
-          order(2025, 10, 31, 999),
+          order(2025, 10, 31, 0),
         ],
         12,
         NOW,
