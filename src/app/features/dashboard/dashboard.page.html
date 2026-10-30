@@ -3,6 +3,61 @@
     <ion-title>Dashboard</ion-title>
   </ion-toolbar>
 </ion-header>
+
 <ion-content class="ion-padding">
-  <h1>Dashboard (solo admin)</h1>
+  <header class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-intro">
+      Resumen de la actividad comercial: indicadores principales, ingresos de los últimos {{ months }} meses y
+      distribución de productos por categoría.
+    </p>
+  </header>
+
+  @if (store.loading()) {
+  <div class="dashboard-state" role="status" aria-live="polite" aria-busy="true">
+    <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+    <p>Cargando los indicadores…</p>
+  </div>
+  } @else if (store.hasError()) {
+  <div class="dashboard-state dashboard-state--error">
+    <ion-text color="danger" role="alert">
+      <p class="page-error">{{ store.error() }}</p>
+    </ion-text>
+    <ion-button fill="outline" (click)="retry()">Reintentar</ion-button>
+  </div>
+  } @else {
+  <section class="kpi-grid" aria-label="Indicadores principales">
+    @for (card of kpiCards(); track card.title) {
+    <app-stat-card [title]="card.title" [value]="card.value" [icon]="card.icon" [hint]="card.hint" />
+    }
+  </section>
+
+  <section class="chart-grid" aria-label="Gráficos del dashboard">
+    <article class="chart-panel">
+      <h2 class="chart-panel__title">Ingresos por mes</h2>
+      <p class="chart-panel__hint">Importe de los pedidos no cancelados en cada mes.</p>
+      <app-chart
+        type="line"
+        [data]="revenueData()"
+        [options]="revenueOptions"
+        [ariaLabel]="revenueAriaLabel"
+        [summary]="revenueSeries().summary"
+        height="18rem"
+      />
+    </article>
+
+    <article class="chart-panel">
+      <h2 class="chart-panel__title">Productos por categoría</h2>
+      <p class="chart-panel__hint">Número de referencias de cada categoría.</p>
+      <app-chart
+        type="bar"
+        [data]="categoryData()"
+        [options]="categoryOptions"
+        [ariaLabel]="categoryAriaLabel"
+        [summary]="categorySeries().summary"
+        height="18rem"
+      />
+    </article>
+  </section>
+  }
 </ion-content>
