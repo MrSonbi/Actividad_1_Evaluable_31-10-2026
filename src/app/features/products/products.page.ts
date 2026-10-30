@@ -126,10 +126,12 @@ export class ProductsPage implements OnInit {
     addIcons({ addOutline, closeOutline, createOutline, saveOutline, trashOutline });
 
     effect((onCleanup) => {
-      const subscription = this.form().statusChanges.subscribe(() => {
-        this.formRevision.update((version) => version + 1);
-      });
-      onCleanup(() => subscription.unsubscribe());
+      const subscriptions = Object.values(this.form().controls).map((control) =>
+        control.events.subscribe(() => {
+          this.formRevision.update((version) => version + 1);
+        }),
+      );
+      onCleanup(() => subscriptions.forEach((subscription) => subscription.unsubscribe()));
     });
   }
 
