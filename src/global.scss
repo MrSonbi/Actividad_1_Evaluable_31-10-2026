@@ -35,3 +35,122 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* Encabezado y mensajes comunes a todas las páginas */
+.page-header {
+  margin-bottom: 1rem;
+}
+
+.page-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+}
+
+.page-intro {
+  margin: 0;
+  max-width: 48rem;
+  font-size: 0.9375rem;
+  color: var(--ion-color-medium);
+}
+
+.page-error {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+/* Mensajes de los formularios */
+.field-error {
+  margin: 0 1rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ion-color-danger);
+}
+
+.field-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 1rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--ion-color-medium);
+}
+
+.field-status ion-spinner {
+  width: 1rem;
+  height: 1rem;
+  color: var(--ion-color-primary);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Selector nativo con etiqueta */
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.select-field__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.select-field__control {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--ion-color-medium);
+  border-radius: 0.5rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Foco visible en cualquier control manejado con teclado */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+ion-button.ion-focused,
+ion-item.ion-focused,
+ion-menu-button.ion-focused {
+  outline: 0.125rem solid var(--ion-color-primary);
+  outline-offset: 0.125rem;
+}
+
+ion-item.ion-focused {
+  outline-offset: -0.125rem;
+}
+
+/* Los destinos de foco por código no son controles */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
