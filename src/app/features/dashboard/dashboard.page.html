@@ -1,0 +1,128 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="new-events" [disabled]="store.newEvents() === 0" (click)="store.markEventsSeen()">
+        <ion-icon slot="start" name="notifications-outline" aria-hidden="true"></ion-icon>
+        <ion-badge aria-hidden="true">{{ store.newEvents() }}</ion-badge>
+        <span class="visually-hidden">{{ newEventsLabel() }}</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <header class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-intro">
+      Resumen de la actividad comercial: indicadores principales, ingresos y pedidos filtrables por periodo y estado,
+      productos por categoría y actividad en vivo.
+    </p>
+  </header>
+
+  @if (store.loading()) {
+  <div class="dashboard-state" role="status" aria-live="polite" aria-busy="true">
+    <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+    <p>Cargando los indicadores…</p>
+  </div>
+  } @else if (store.hasError()) {
+  <div class="dashboard-state dashboard-state--error">
+    <ion-text color="danger" role="alert">
+      <p class="page-error">{{ store.error() }}</p>
+    </ion-text>
+    <ion-button fill="outline" (click)="retry()">Reintentar</ion-button>
+  </div>
+  } @else {
+  <section class="kpi-grid" aria-label="Indicadores principales">
+    @for (card of kpiCards(); track card.title) {
+    <app-stat-card [title]="card.title" [value]="card.value" [icon]="card.icon" [hint]="card.hint" />
+    }
+  </section>
+
+  <section class="filters" aria-label="Filtros de pedidos">
+    <div class="filters__controls">
+      <div class="period-filter">
+        <label class="period-filter__label" for="dashboard-period">Periodo</label>
+        <select id="dashboard-period" class="period-filter__select" (change)="onPeriodChange($event)">
+          @for (months of periods; track months) {
+          <option [value]="months" [selected]="period() === months">Últimos {{ months }} meses</option>
+          }
+        </select>
+      </div>
+      <app-order-status-filter [(value)]="status" />
+    </div>
+    <div class="filters__export">
+      <ion-button fill="outline" size="small" data-export="pdf" (click)="exportRequested.emit('pdf')">
+        Exportar PDF
+      </ion-button>
+      <ion-button fill="outline" size="small" data-export="csv" (click)="exportRequested.emit('csv')">
+        Exportar CSV
+      </ion-button>
+    </div>
+    <p class="filters__result" role="status">{{ filterSummary() }}</p>
+  </section>
+
+  <section class="kpi-grid" aria-label="Indicadores del periodo">
+    @for (card of periodCards(); track card.title) {
+    <app-stat-card [title]="card.title" [value]="card.value" [icon]="card.icon" [hint]="card.hint" />
+    }
+  </section>
+
+  <section class="chart-grid" aria-label="Gráficos del dashboard">
+    <article class="chart-panel">
+      <h2 class="chart-panel__title">Ingresos por mes</h2>
+      <p class="chart-panel__hint">Importe de los pedidos no cancelados en cada mes.</p>
+      <app-chart
+        type="line"
+        [data]="revenueData()"
+        [options]="revenueOptions"
+        [ariaLabel]="revenueAriaLabel()"
+        [summary]="revenueSeries().summary"
+        height="18rem"
+      />
+    </article>
+
+    <article class="chart-panel">
+      <h2 class="chart-panel__title">Pedidos por estado</h2>
+      <p class="chart-panel__hint">Reparto de los pedidos que cumplen los filtros.</p>
+      @if (filteredOrders().length === 0) {
+      <div class="chart-panel__empty">
+        <app-empty-state title="Sin pedidos" message="Ningún pedido cumple los filtros seleccionados." />
+      </div>
+      } @else {
+      <app-chart
+        type="doughnut"
+        [data]="statusData()"
+        [options]="statusOptions"
+        [ariaLabel]="statusAriaLabel()"
+        [summary]="statusSeries().summary"
+        height="18rem"
+      />
+      }
+    </article>
+
+    <article class="chart-panel">
+      <h2 class="chart-panel__title">Productos por categoría</h2>
+      <p class="chart-panel__hint">Número de referencias de cada categoría; no depende de los filtros.</p>
+      <app-chart
+        type="bar"
+        [data]="categoryData()"
+        [options]="categoryOptions"
+        [ariaLabel]="categoryAriaLabel"
+        [summary]="categorySeries().summary"
+        height="18rem"
+      />
+    </article>
+  </section>
+
+  <section class="live-activity" aria-labelledby="live-activity-title">
+    <h2 id="live-activity-title" class="chart-panel__title">Actividad en vivo</h2>
+    @if (store.liveError(); as liveError) {
+    <ion-text color="danger" role="alert">
+      <p class="page-error">{{ liveError }}</p>
+    </ion-text>
+    }
+    <app-activity-feed title="Últimos movimientos" [items]="store.latestActivity()" />
+  </section>
+  }
+</ion-content>

@@ -1,0 +1,10 @@
+# Normaliza los finales de línea a LF en el repositorio y en el área de trabajo.
+# Evita que Prettier (endOfLine: lf) falle en Windows con core.autocrlf=true.
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

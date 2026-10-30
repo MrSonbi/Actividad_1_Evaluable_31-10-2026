@@ -1,0 +1,141 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Clientes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreate()">
+        <ion-icon slot="start" name="add-outline" aria-hidden="true"></ion-icon>
+        Nuevo cliente
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <header class="page-header">
+    <h1 class="page-title">Clientes</h1>
+    <p class="page-intro">
+      Directorio de clientes con sus datos de contacto. Cualquier usuario puede crear y editar fichas; solo los
+      administradores pueden eliminarlas.
+    </p>
+  </header>
+
+  @if (store.hasError()) {
+  <ion-text color="danger" role="alert">
+    <p class="page-error">{{ store.error() }}</p>
+  </ion-text>
+  }
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="store.items()"
+    [loading]="store.loading()"
+    [pageSize]="10"
+    caption="Directorio de clientes"
+    [exportable]="false"
+    [selectable]="false"
+    [editable]="true"
+    [removable]="authStore.isAdmin()"
+    (edit)="openEdit($event)"
+    (remove)="confirmRemove($event)"
+  />
+</ion-content>
+
+<ion-modal [isOpen]="formOpen()" (didDismiss)="onModalDismiss()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ editing() ? 'Editar cliente' : 'Nuevo cliente' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" aria-label="Cerrar formulario" (click)="closeForm()">
+            <ion-icon slot="icon-only" name="close-outline" aria-hidden="true"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <form #customerForm [formGroup]="form()" (ngSubmit)="onSubmit()" novalidate>
+        <ion-list>
+          <ion-item>
+            <ion-input
+              formControlName="full_name"
+              label="Nombre completo"
+              labelPlacement="stacked"
+              placeholder="Ana Pérez"
+              autocomplete="name"
+              [attr.aria-invalid]="showError('full_name')"
+              [attr.aria-describedby]="describedBy('full_name')"
+            ></ion-input>
+          </ion-item>
+          @if (showError('full_name')) {
+          <p class="field-error" id="full_name-error" role="alert">{{ errorFor('full_name') }}</p>
+          }
+
+          <ion-item>
+            <ion-input
+              formControlName="email"
+              type="email"
+              label="Email"
+              labelPlacement="stacked"
+              placeholder="ana.perez@example.com"
+              autocomplete="email"
+              [attr.aria-invalid]="showError('email')"
+              [attr.aria-describedby]="describedBy('email')"
+              [attr.aria-busy]="isPending('email')"
+            ></ion-input>
+          </ion-item>
+          @if (isPending('email')) {
+          <p class="field-status" id="email-status" aria-live="polite">
+            <ion-spinner name="dots" aria-hidden="true"></ion-spinner>
+            Comprobando si el email ya está registrado…
+          </p>
+          } @if (showError('email')) {
+          <p class="field-error" id="email-error" role="alert">{{ errorFor('email') }}</p>
+          }
+
+          <ion-item>
+            <ion-input
+              formControlName="phone"
+              type="tel"
+              label="Teléfono (opcional)"
+              labelPlacement="stacked"
+              placeholder="600 000 000"
+              autocomplete="tel"
+              [attr.aria-invalid]="showError('phone')"
+              [attr.aria-describedby]="describedBy('phone')"
+            ></ion-input>
+          </ion-item>
+          @if (showError('phone')) {
+          <p class="field-error" id="phone-error" role="alert">{{ errorFor('phone') }}</p>
+          }
+
+          <ion-item>
+            <ion-input
+              formControlName="city"
+              label="Ciudad (opcional)"
+              labelPlacement="stacked"
+              placeholder="Valencia"
+              autocomplete="address-level2"
+              [attr.aria-invalid]="showError('city')"
+              [attr.aria-describedby]="describedBy('city')"
+            ></ion-input>
+          </ion-item>
+          @if (showError('city')) {
+          <p class="field-error" id="city-error" role="alert">{{ errorFor('city') }}</p>
+          }
+        </ion-list>
+
+        <div class="form-actions">
+          <ion-button type="button" fill="clear" [disabled]="saving()" (click)="closeForm()">Cancelar</ion-button>
+          <ion-button type="submit" [disabled]="saving()" [attr.aria-busy]="saving()">
+            @if (saving()) {
+            <ion-spinner name="dots" aria-hidden="true"></ion-spinner>
+            } @else {
+            <ion-icon slot="start" name="save-outline" aria-hidden="true"></ion-icon>
+            } {{ editing() ? 'Guardar cambios' : 'Crear cliente' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

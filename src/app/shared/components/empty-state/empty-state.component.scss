@@ -1,0 +1,45 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 1px dashed var(--ion-color-light-shade, #d7d8da);
+  border-radius: 0.75rem;
+}
+
+.empty-state__icon {
+  font-size: 2.25rem;
+  color: var(--ion-color-medium, #6c757d);
+}
+
+.empty-state__title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.empty-state__message {
+  max-width: 34rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ion-color-medium, #6c757d);
+}
+
+.empty-state__action {
+  padding: 0.55rem 0.9rem;
+  margin-top: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ion-color-primary-contrast, #fff);
+  cursor: pointer;
+  background: var(--ion-color-primary, #0054e9);
+  border: 0;
+  border-radius: 0.5rem;
+}
+
+.empty-state__action:focus-visible {
+  outline: 2px solid var(--ion-color-primary, #0054e9);
+  outline-offset: 3px;
+}

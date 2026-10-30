@@ -1,0 +1,146 @@
+<div class="data-table" [attr.aria-busy]="loading()">
+  <div class="toolbar">
+    <label class="search">
+      <span>Buscar</span>
+      <input
+        type="search"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        autocomplete="off"
+        placeholder="Escribe para filtrar"
+      />
+    </label>
+    <div class="exports">
+      @if (exportable()) {
+        <button
+          type="button"
+          class="export-button"
+          [disabled]="rows().length === 0"
+          (click)="exportRequested.emit('csv')"
+        >
+          Exportar CSV
+        </button>
+        <button
+          type="button"
+          class="export-button"
+          [disabled]="rows().length === 0"
+          (click)="exportRequested.emit('pdf')"
+        >
+          Exportar PDF
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="results" aria-live="polite">{{ resultsText() }}</p>
+
+  <div class="table-scroll">
+    <table>
+      <caption>
+        {{
+          caption()
+        }}
+      </caption>
+      <thead>
+        <tr>
+          @for (column of columns(); track column.key) {
+            <th scope="col" [attr.aria-sort]="ariaSort(column)">
+              @if (column.sortable) {
+                <button
+                  type="button"
+                  class="sort-button"
+                  [attr.aria-label]="sortAriaLabel(column)"
+                  (click)="sortBy(column)"
+                >
+                  <span>{{ column.label }}</span>
+                  <span class="sort-icon" aria-hidden="true">{{ sortIndicator(column) }}</span>
+                </button>
+              } @else {
+                {{ column.label }}
+              }
+            </th>
+          }
+          @if (hasActions()) {
+            <th scope="col">Acciones</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <tr>
+            <td class="message" [attr.colspan]="messageColspan()">Cargando datos…</td>
+          </tr>
+        } @else if (pagedRows().length === 0) {
+          <tr>
+            <td class="message" [attr.colspan]="messageColspan()">No hay resultados para los filtros aplicados.</td>
+          </tr>
+        } @else {
+          @for (row of pagedRows(); track $index) {
+            <tr>
+              @for (column of columns(); track column.key) {
+                <td [attr.data-label]="column.label">
+                  @if (column.type === 'badge') {
+                    <span [class]="badgeClass(row, column)">{{ cellValue(row, column) }}</span>
+                  } @else {
+                    {{ cellValue(row, column) }}
+                  }
+                </td>
+              }
+              @if (hasActions()) {
+                <td class="actions" data-label="Acciones">
+                  @if (selectable()) {
+                    <button
+                      type="button"
+                      class="action-button"
+                      [attr.aria-label]="'Ver detalle de ' + rowIdentifier(row)"
+                      (click)="selectRow(row)"
+                    >
+                      Ver
+                    </button>
+                  }
+                  @if (editable()) {
+                    <button
+                      type="button"
+                      class="action-button"
+                      [attr.aria-label]="'Editar ' + rowIdentifier(row)"
+                      (click)="editRow(row)"
+                    >
+                      Editar
+                    </button>
+                  }
+                  @if (removable()) {
+                    <button
+                      type="button"
+                      class="action-button action-button--danger"
+                      [attr.aria-label]="'Eliminar ' + rowIdentifier(row)"
+                      (click)="removeRow(row)"
+                    >
+                      Eliminar
+                    </button>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (!loading() && sortedRows().length > 0) {
+    <nav class="pagination" aria-label="Paginación de la tabla">
+      <button type="button" class="page-button" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+        Anterior
+      </button>
+      <span>Página {{ currentPage() }} de {{ totalPages() }}</span>
+      <button
+        type="button"
+        class="page-button"
+        [disabled]="currentPage() === totalPages()"
+        (click)="goToPage(currentPage() + 1)"
+      >
+        Siguiente
+      </button>
+    </nav>
+  }
+</div>
