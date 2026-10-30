@@ -92,6 +92,7 @@ describe('DashboardPage', () => {
       error,
       hasError: computed(() => error() !== null),
       load: vi.fn(async () => undefined),
+      refresh: vi.fn(async () => undefined),
       connectActivity: vi.fn(() => liveSubscription),
       markEventsSeen: vi.fn(() => newEvents.set(0)),
     };
@@ -232,8 +233,36 @@ describe('DashboardPage', () => {
       choose('app-order-status-filter select', 'shipped');
 
       expect(element().querySelector('canvas[aria-label^="Pedidos por estado"]')).toBeNull();
-      expect(find('app-empty-state').textContent).toContain('Sin pedidos');
+      expect(find('.chart-panel__empty app-empty-state').textContent).toContain('Sin pedidos');
       expect(find('.filters__result').textContent).toContain('0 pedidos');
+    });
+  });
+
+  describe('al volver a entrar', () => {
+    it('no recarga en la primera entrada y recarga en silencio en las siguientes', () => {
+      fixture.detectChanges();
+
+      fixture.componentInstance.ionViewWillEnter();
+      expect(store['refresh']).not.toHaveBeenCalled();
+      expect(store['load']).toHaveBeenCalledTimes(1);
+
+      fixture.componentInstance.ionViewWillEnter();
+      expect(store['refresh']).toHaveBeenCalledTimes(1);
+      expect(store['load']).toHaveBeenCalledTimes(1);
+    });
+
+    it('mantiene los filtros y no muestra el spinner al recargar', () => {
+      loading.set(false);
+      fixture.detectChanges();
+      choose('#dashboard-period', '3');
+
+      fixture.componentInstance.ionViewWillEnter();
+      fixture.componentInstance.ionViewWillEnter();
+      fixture.detectChanges();
+
+      expect((find('#dashboard-period') as HTMLSelectElement).value).toBe('3');
+      expect(find('.filters__result').textContent).toContain('últimos 3 meses');
+      expect(element().querySelector('.dashboard-state')).toBeNull();
     });
   });
 

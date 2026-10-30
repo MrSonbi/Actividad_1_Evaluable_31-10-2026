@@ -1,5 +1,6 @@
 import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import type { ViewWillEnter } from '@ionic/angular/standalone';
 import {
   IonBadge,
   IonButton,
@@ -91,7 +92,7 @@ interface KpiCard {
   styleUrls: ['./dashboard.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardPage implements OnInit, OnDestroy {
+export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
   /** Estado del dashboard (KPIs, series, actividad, carga y error). */
   readonly store = inject(DashboardStore);
 
@@ -125,6 +126,9 @@ export class DashboardPage implements OnInit, OnDestroy {
   private readonly currencyFormat = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
   private liveSubscription: Subscription | null = null;
+
+  /** Indica si Ionic ya ha mostrado la página; la primera entrada la cubre `load()`. */
+  private hasEntered = false;
 
   /** Tarjetas de los cinco indicadores, ya formateadas. */
   protected readonly kpiCards = computed<readonly KpiCard[]>(() => {
@@ -312,6 +316,18 @@ export class DashboardPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.liveSubscription = this.store.connectActivity();
     void this.store.load();
+  }
+
+  /**
+   * Recarga en silencio al volver a la pantalla: Ionic conserva la página en
+   * memoria y no repite `ngOnInit`. Los filtros se mantienen porque viven en la
+   * propia página.
+   */
+  ionViewWillEnter(): void {
+    if (this.hasEntered) {
+      void this.store.refresh();
+    }
+    this.hasEntered = true;
   }
 
   /** Cancela la suscripción a la actividad en vivo. */

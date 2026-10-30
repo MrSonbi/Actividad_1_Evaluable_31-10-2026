@@ -147,6 +147,14 @@
   background: var(--ion-card-background, #fff);
 }
 
+// Misma altura que los gráficos: el panel no salta al quedarse sin pedidos.
+.chart-panel__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18rem;
+}
+
 .chart-panel__title {
   margin: 0 0 0.25rem;
   font-size: 1.125rem;
