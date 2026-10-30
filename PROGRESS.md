@@ -1,8 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F5 · Dashboard (solo admin) (RA5) — mitad F5a (store, KPIs y dos gráficos) completada; falta F5b (filtros, feed en vivo y exportación)
-- Rama de trabajo: feature/f5a-dashboard
+- Fase actual: F5 · Dashboard (solo admin) (RA5) — F5a con PR #8 abierto; F5b con PR abierto (parte de la rama de F5a)
+- Rama de trabajo: feature/f5b-dashboard
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -17,6 +17,7 @@
 - Fecha fin F4b: 2026-10-30
 - Fecha inicio F5a: 2026-10-30
 - Fecha fin F5a: 2026-10-30
+- Fecha inicio F5b: 2026-10-30
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
@@ -24,7 +25,7 @@
 - [x] F2 · Capa de datos asíncrona (RA5)
 - [x] F3 · Componentes reutilizables (RA3)
 - [x] F4 · Funcionalidades y formularios (RA2)
-- [ ] F5 · Dashboard (solo admin) (RA5) — F5a completada; falta F5b
+- [ ] F5 · Dashboard (solo admin) (RA5) — F5a y F5b con PR abierto
 - [ ] F6 · Informes PDF y CSV (RA5)
 - [ ] F7 · Accesibilidad, responsive y PWA (RA4)
 - [ ] F8 · Documentación (RA6)
@@ -69,6 +70,12 @@
 - F5a: `OrdersQuery` gana `createdFrom` (ISO 8601), que `OrdersApi` traduce a `created_at=gte.<fecha>`; el dashboard pide los pedidos desde el primer día del mes que abre la ventana de 12 meses.
 - F5a: `features/dashboard/dashboard-charts.ts` contiene funciones puras para agrupar ingresos por mes (excluye cancelados y rellena meses sin datos) y productos por categoría, con etiquetas y resúmenes en español; se testean por separado.
 - F5a: `/dashboard` pinta los cinco KPIs con `app-stat-card` y dos `app-chart` (líneas de ingresos y barras por categoría) con `ariaLabel`, resumen textual, spinner accesible y aviso de error con «Reintentar». El feed en vivo, los filtros de periodo/estado y la exportación quedan para F5b.
+- F5b: los filtros de periodo (3, 6 y 12 meses naturales, incluido el actual) y estado son `signal` en `DashboardPage`; `filteredOrders` y las series son `computed` sobre los pedidos ya cargados, sin nuevas peticiones. Los cinco KPIs de `v_kpis` son históricos y no cambian; se añaden tres KPIs del periodo (pedidos, ingresos e importe medio). El gráfico de categorías tampoco depende de los filtros.
+- F5b: rosquilla de pedidos por estado con los cuatro estados siempre presentes, para que leyenda y colores no cambien al filtrar; sin pedidos se muestra `app-empty-state`.
+- F5b: `DashboardStore.connectActivity()` escucha `DocumentStore.changes$` y devuelve la suscripción, que la página cancela en `ngOnDestroy`. No se usa `NgZone.run`: la aplicación no tiene zone.js (Angular 22 sin zona) y las señales programan el repintado. El feed se une por `id` para no perder ni repetir eventos que coincidan con la carga REST.
+- F5b: contador de eventos nuevos en la barra superior del dashboard; al pulsarlo se marca como visto. Un fallo del canal muestra un aviso sin ocultar el resto de la pantalla.
+- F5b: los botones «Exportar PDF/CSV» emiten `exportRequested` y aún no generan archivos (llega en F6).
+- F5b: `app-order-status-filter` genera un `id` por instancia: Ionic mantiene en el DOM las páginas visitadas y el `id` fijo se repetía entre pedidos y dashboard, dejando sin etiqueta al segundo selector.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -82,3 +89,4 @@
 - 2026-10-30: Fix `fix/list-sort-after-create` - causa: el `pageSize` de 25 de los stores llegaba a `RestClient.page` y solo se cargaba un bloque; la tabla buscaba, ordenaba y paginaba sobre esas 25 filas, y el alta quedaba fuera si no entraba en la primera página por nombre. Ahora `RestClient.listAll` trae todos los bloques, los stores cargan la lista completa y las altas/ediciones/borrados se aplican en memoria. Tests: carga por bloques, orden sobre el total y alta visible sin búsqueda.
 - 2026-10-30: F4b completada - listado de pedidos de solo lectura con datos reales y filtro por estado mediante un componente con `model()`, menú con «Pedidos», retirada de `/components-demo`, revisión del repintado de errores de los formularios de F4a y tests nuevos de pedidos y del filtro. Pendiente de que el usuario ejecute lint/test/build.
 - 2026-10-30: F5a completada - `DashboardStore` con `forkJoin`, KPIs y dos gráficos accesibles en `/dashboard`, filtro `createdFrom` en `OrdersApi`, helpers de series y tests del store, de las series y de la página. Pendiente de que el usuario ejecute lint/test/build y de F5b.
+- 2026-10-30: F5b con PR abierto - filtros en memoria, KPIs del periodo, rosquilla por estado, feed en vivo con contador, botones de exportación que emiten el evento y tests. La rama parte de `feature/f5a-dashboard` porque el PR #8 sigue abierto. Sin ejecutar lint/test/build (los ejecuta el usuario).
