@@ -103,6 +103,26 @@ describe('DataTableComponent', () => {
     expect(element.querySelector('.pagination')?.textContent).toContain('Página 2 de 2');
   });
 
+  it('ordena todas las filas antes de paginar, no solo la página visible', () => {
+    createTable(5);
+    const manyRows: DemoRow[] = Array.from({ length: 12 }, (_, index) => ({
+      id: index + 1,
+      name: String.fromCharCode(90 - index),
+      price: index,
+    }));
+    fixture.componentRef.setInput('rows', manyRows);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.pagination')?.textContent).toContain('Página 1 de 3');
+
+    element.querySelectorAll<HTMLButtonElement>('.sort-button')[0].click();
+    fixture.detectChanges();
+
+    expect(cellTexts()[0]).toContain('O');
+    expect(element.querySelector('.pagination')?.textContent).toContain('Página 1 de 3');
+  });
+
   it('emite rowSelect, edit y remove desde los botones de acción', () => {
     createTable();
     fixture.componentRef.setInput('editable', true);
