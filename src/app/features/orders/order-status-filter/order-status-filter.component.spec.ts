@@ -35,7 +35,7 @@ describe('OrderStatusFilterComponent', () => {
 
   it('emite el estado seleccionado y permite volver a «todos»', () => {
     const emitted: (OrderStatus | null)[] = [];
-    fixture.componentInstance.valueChange.subscribe((value) => emitted.push(value));
+    fixture.componentInstance.value.subscribe((value) => emitted.push(value));
 
     select().value = 'shipped';
     select().dispatchEvent(new Event('change'));
