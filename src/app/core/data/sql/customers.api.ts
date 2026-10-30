@@ -40,6 +40,19 @@ export class CustomersApi {
   }
 
   /**
+   * Lista **todos** los clientes que cumplen los filtros, pidiéndolos al
+   * servidor por bloques hasta traerlos todos.
+   *
+   * @param query Filtros y orden
+   */
+  listAll(query: CustomersQuery = {}): Observable<Customer[]> {
+    return this.rest.listAll<Customer>(this.table, {
+      filters: this.filters(query),
+      order: 'full_name.asc',
+    });
+  }
+
+  /**
    * Página de clientes con el total de coincidencias.
    *
    * @param query Filtros y paginación

@@ -1,6 +1,5 @@
 import type { ElementRef, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, effect, inject, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormControl, FormGroup } from '@angular/forms';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -24,7 +23,6 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, closeOutline, createOutline, saveOutline, trashOutline } from 'ionicons/icons';
-import { debounceTime, Subject } from 'rxjs';
 
 import { AuthStore } from '../../core/auth/auth.store';
 import { ProductsStore } from '../../core/data/products.store';
@@ -95,7 +93,6 @@ export class ProductsPage implements OnInit {
   private readonly toastController = inject(ToastController);
 
   private readonly formElement = viewChild<ElementRef<HTMLFormElement>>('productForm');
-  private readonly searchTerms = new Subject<string>();
 
   /** Indica si el modal del formulario está abierto. */
   protected readonly formOpen = signal(false);
@@ -127,10 +124,6 @@ export class ProductsPage implements OnInit {
 
   constructor() {
     addIcons({ addOutline, closeOutline, createOutline, saveOutline, trashOutline });
-
-    this.searchTerms.pipe(debounceTime(300), takeUntilDestroyed()).subscribe((term) => {
-      void this.store.setSearch(term);
-    });
 
     effect((onCleanup) => {
       const subscriptions = Object.values(this.form().controls).map((control) =>
@@ -182,15 +175,6 @@ export class ProductsPage implements OnInit {
     this.formOpen.set(false);
     this.editing.set(null);
     this.submitted.set(false);
-  }
-
-  /**
-   * Aplica el texto de búsqueda con un pequeño retardo.
-   *
-   * @param term Texto introducido en la tabla
-   */
-  protected onSearch(term: string): void {
-    this.searchTerms.next(term);
   }
 
   /**

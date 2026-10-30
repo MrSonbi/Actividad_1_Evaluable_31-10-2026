@@ -9,27 +9,25 @@ import { ActivityLogService } from './activity-log.service';
 import { CustomersApi } from './sql/customers.api';
 
 interface CustomersState {
+  /** Directorio completo cargado del servidor. */
   items: Customer[];
-  total: number;
-  page: number;
-  pageSize: number;
-  search: string;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: CustomersState = {
   items: [],
-  total: 0,
-  page: 1,
-  pageSize: 25,
-  search: '',
   loading: false,
   error: null,
 };
 
 /**
- * Estado de la feature de clientes: listado paginado, búsqueda y CRUD.
+ * Estado de la feature de clientes: directorio completo, búsqueda en cliente y
+ * CRUD.
+ *
+ * El store carga todas las filas del servidor (por bloques); la búsqueda, la
+ * ordenación y la paginación de la tabla se resuelven en el cliente. Cada
+ * escritura actualiza la lista en memoria sin volver a pedir el directorio.
  *
  * Ambos roles pueden crear y editar; solo el administrador borra (lo impone la
  * base de datos y la interfaz oculta el botón).
@@ -38,51 +36,31 @@ export const CustomersStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
+    /** Número total de clientes cargados. */
+    total: computed(() => store.items().length),
     isEmpty: computed(() => !store.loading() && store.items().length === 0),
     hasError: computed(() => store.error() !== null),
   })),
   withMethods((store, customersApi = inject(CustomersApi), activity = inject(ActivityLogService)) => ({
     /**
-     * Carga la página actual aplicando la búsqueda activa.
+     * Carga el directorio completo, pidiendo al servidor todos los bloques.
      */
     async load(): Promise<void> {
       patchState(store, { loading: true, error: null });
       try {
-        const { rows, total } = await firstValueFrom(
-          customersApi.page({
-            page: store.page(),
-            pageSize: store.pageSize(),
-            search: store.search(),
-          }),
-        );
-        patchState(store, { items: rows, total: total ?? rows.length, loading: false });
+        const items = await firstValueFrom(customersApi.listAll());
+        patchState(store, { items, loading: false });
       } catch (error: unknown) {
         patchState(store, { loading: false, error: toErrorMessage(error) });
       }
     },
 
     /**
-     * Cambia el texto de búsqueda y recarga desde la primera página.
+     * Crea un cliente, lo inserta al principio de la lista y registra la
+     * actividad.
      *
-     * @param search Texto a buscar en nombre o email
-     */
-    async setSearch(search: string): Promise<void> {
-      patchState(store, { search, page: 1 });
-      await this.load();
-    },
-
-    /**
-     * Cambia de página y recarga.
-     *
-     * @param page Número de página (1-based)
-     */
-    async setPage(page: number): Promise<void> {
-      patchState(store, { page: Math.max(page, 1) });
-      await this.load();
-    },
-
-    /**
-     * Crea un cliente, registra la actividad y recarga el listado.
+     * La inserción es local: no se recarga el directorio, así que se conservan
+     * la búsqueda, la ordenación y la página que el usuario tenga aplicadas.
      *
      * @param input Datos del cliente
      * @returns `true` si la operación se completó correctamente
@@ -90,8 +68,8 @@ export const CustomersStore = signalStore(
     async create(input: CustomerInput): Promise<boolean> {
       try {
         const created = await firstValueFrom(customersApi.create(input));
+        patchState(store, { items: [created, ...store.items()], error: null });
         activity.log('create', 'customer', created.id, `Cliente creado: ${created.full_name}`);
-        await this.load();
         return true;
       } catch (error: unknown) {
         patchState(store, { error: toErrorMessage(error) });
@@ -100,7 +78,7 @@ export const CustomersStore = signalStore(
     },
 
     /**
-     * Actualiza un cliente, registra la actividad y recarga el listado.
+     * Actualiza un cliente y reemplaza su fila en la lista, sin recargarla.
      *
      * @param id Identificador del cliente
      * @param input Campos a modificar
@@ -109,8 +87,11 @@ export const CustomersStore = signalStore(
     async update(id: number, input: Partial<CustomerInput>): Promise<boolean> {
       try {
         const updated = await firstValueFrom(customersApi.update(id, input));
+        patchState(store, {
+          items: store.items().map((existing) => (existing.id === id ? updated : existing)),
+          error: null,
+        });
         activity.log('update', 'customer', id, `Cliente actualizado: ${updated.full_name}`);
-        await this.load();
         return true;
       } catch (error: unknown) {
         patchState(store, { error: toErrorMessage(error) });
@@ -119,7 +100,8 @@ export const CustomersStore = signalStore(
     },
 
     /**
-     * Elimina un cliente (solo admin), registra la actividad y recarga.
+     * Elimina un cliente (solo admin) de la lista en memoria y registra la
+     * actividad.
      *
      * @param customer Cliente a eliminar
      * @returns `true` si la operación se completó correctamente
@@ -127,8 +109,11 @@ export const CustomersStore = signalStore(
     async remove(customer: Customer): Promise<boolean> {
       try {
         await firstValueFrom(customersApi.remove(customer.id));
+        patchState(store, {
+          items: store.items().filter((existing) => existing.id !== customer.id),
+          error: null,
+        });
         activity.log('delete', 'customer', customer.id, `Cliente eliminado: ${customer.full_name}`);
-        await this.load();
         return true;
       } catch (error: unknown) {
         patchState(store, { error: toErrorMessage(error) });

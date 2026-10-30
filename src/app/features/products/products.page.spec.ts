@@ -42,7 +42,6 @@ describe('ProductsPage', () => {
       categories: signal<Category[]>([CATEGORY]),
       load: vi.fn(async () => undefined),
       loadCategories: vi.fn(async () => undefined),
-      setSearch: vi.fn(async () => undefined),
       clearError: vi.fn(),
       create: vi.fn(async () => true),
       update: vi.fn(async () => true),

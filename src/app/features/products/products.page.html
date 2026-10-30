@@ -37,7 +37,6 @@
     [selectable]="false"
     [editable]="authStore.isAdmin()"
     [removable]="authStore.isAdmin()"
-    (searchChange)="onSearch($event)"
     (edit)="openEdit($event)"
     (remove)="confirmRemove($event)"
   />
