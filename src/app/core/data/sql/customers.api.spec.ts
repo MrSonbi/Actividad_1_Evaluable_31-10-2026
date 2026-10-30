@@ -40,6 +40,27 @@ describe('CustomersApi', () => {
     await promise;
   });
 
+  it('recupera todos los clientes por bloques, no solo la primera página', async () => {
+    const promise = firstValueFrom(api.listAll());
+
+    const req = httpMock.expectOne((r) => r.url === BASE);
+    expect(req.request.headers.get('Range')).toBe('0-499');
+    expect(req.request.headers.get('Prefer')).toBe('count=exact');
+    expect(req.request.params.get('order')).toBe('full_name.asc');
+
+    const customers = Array.from({ length: 30 }, (_, index) => ({
+      id: index + 1,
+      full_name: `Cliente ${index + 1}`,
+      email: `cliente${index + 1}@example.com`,
+      phone: null,
+      city: null,
+      created_at: '2026-01-01T00:00:00Z',
+    }));
+    req.flush(customers, { headers: { 'Content-Range': '0-29/30' } });
+
+    await expect(promise).resolves.toHaveLength(30);
+  });
+
   it('normaliza el email a minúsculas al crear', async () => {
     const promise = firstValueFrom(
       api.create({ full_name: 'Ana Prueba', email: ' Ana.Prueba@Example.COM ', phone: null, city: null }),

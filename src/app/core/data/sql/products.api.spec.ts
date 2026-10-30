@@ -59,6 +59,47 @@ describe('ProductsApi', () => {
     expect(products[0]).not.toHaveProperty('categories');
   });
 
+  it('recupera todos los productos por bloques y aplana la categoría', async () => {
+    const promise = firstValueFrom(api.listAll());
+
+    const req = httpMock.expectOne((r) => r.url === BASE);
+    expect(req.request.headers.get('Range')).toBe('0-499');
+    expect(req.request.headers.get('Prefer')).toBe('count=exact');
+    expect(req.request.params.get('select')).toBe('*,categories(name)');
+    expect(req.request.params.get('order')).toBe('name.asc');
+
+    req.flush(
+      [
+        {
+          id: 1,
+          sku: 'SKU-1',
+          name: 'Monitor',
+          category_id: 4,
+          price: 199,
+          stock: 3,
+          created_at: '2026-01-01T00:00:00Z',
+          categories: { name: 'Pantallas' },
+        },
+        {
+          id: 2,
+          sku: 'SKU-2',
+          name: 'Teclado',
+          category_id: 4,
+          price: 25.5,
+          stock: 8,
+          created_at: '2026-01-02T00:00:00Z',
+          categories: null,
+        },
+      ],
+      { headers: { 'Content-Range': '0-1/2' } },
+    );
+
+    const products = await promise;
+    expect(products).toHaveLength(2);
+    expect(products[0].category_name).toBe('Pantallas');
+    expect(products[1].category_name).toBeNull();
+  });
+
   it('pagina y devuelve el total de coincidencias', async () => {
     const promise = firstValueFrom(api.page({ page: 3, pageSize: 5 }));
 

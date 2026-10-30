@@ -58,6 +58,25 @@ export class ProductsApi {
   }
 
   /**
+   * Lista **todos** los productos que cumplen los filtros, pidiéndolos al
+   * servidor por bloques hasta traerlos todos.
+   *
+   * El orden y los filtros se aplican en PostgREST; la búsqueda, la ordenación
+   * y la paginación visibles se resuelven en el cliente sobre esta lista.
+   *
+   * @param query Filtros y orden
+   */
+  listAll(query: ProductsQuery = {}): Observable<ProductWithCategory[]> {
+    return this.rest
+      .listAll<ProductRow>(this.table, {
+        select: SELECT_WITH_CATEGORY,
+        filters: this.filters(query),
+        order: 'name.asc',
+      })
+      .pipe(map((rows) => rows.map(toProduct)));
+  }
+
+  /**
    * Página de productos con el total de coincidencias (para la tabla).
    *
    * @param query Filtros y paginación

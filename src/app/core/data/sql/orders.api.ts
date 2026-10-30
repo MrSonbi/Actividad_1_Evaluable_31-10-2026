@@ -57,6 +57,22 @@ export class OrdersApi {
   }
 
   /**
+   * Lista **todos** los pedidos que cumplen los filtros, pidiéndolos al
+   * servidor por bloques hasta traerlos todos.
+   *
+   * @param query Filtros y orden
+   */
+  listAll(query: OrdersQuery = {}): Observable<OrderWithCustomer[]> {
+    return this.rest
+      .listAll<OrderRow>(this.table, {
+        select: SELECT_WITH_CUSTOMER,
+        filters: this.filters(query),
+        order: 'created_at.desc',
+      })
+      .pipe(map((rows) => rows.map(toOrder)));
+  }
+
+  /**
    * Página de pedidos con el total de coincidencias.
    *
    * @param query Filtros y paginación
