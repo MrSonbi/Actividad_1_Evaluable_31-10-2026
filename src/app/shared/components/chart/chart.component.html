@@ -1,5 +1,7 @@
 <figure class="chart">
-  <canvas #chartCanvas role="img" [attr.aria-label]="ariaLabel()" [style.height]="height()"></canvas>
+  <div class="chart__canvas" [style.height]="height()">
+    <canvas #chartCanvas role="img" [attr.aria-label]="ariaLabel()"></canvas>
+  </div>
   @if (summary().length > 0) {
     <figcaption class="visually-hidden">
       <p>{{ ariaLabel() }}</p>
