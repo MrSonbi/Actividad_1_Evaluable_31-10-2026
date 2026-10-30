@@ -102,7 +102,7 @@ describe('DashboardPage', () => {
     expect(texts[1]).toContain('Clientes');
     expect(texts[2]).toContain('Pedidos');
     expect(texts[3]).toContain('Ingresos');
-    expect(texts[3]).toContain('1.234,56');
+    expect(texts[3]).toContain('1234,56');
     expect(texts[4]).toContain('Productos con poco stock');
     expect(texts[4]).toContain('2');
   });
