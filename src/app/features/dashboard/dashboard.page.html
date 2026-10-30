@@ -86,7 +86,9 @@
       <h2 class="chart-panel__title">Pedidos por estado</h2>
       <p class="chart-panel__hint">Reparto de los pedidos que cumplen los filtros.</p>
       @if (filteredOrders().length === 0) {
-      <app-empty-state title="Sin pedidos" message="Ningún pedido cumple los filtros seleccionados." />
+      <div class="chart-panel__empty">
+        <app-empty-state title="Sin pedidos" message="Ningún pedido cumple los filtros seleccionados." />
+      </div>
       } @else {
       <app-chart
         type="doughnut"

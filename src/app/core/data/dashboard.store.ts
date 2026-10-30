@@ -1,6 +1,6 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { debounceTime, firstValueFrom, forkJoin, tap } from 'rxjs';
 import type { Subscription } from 'rxjs';
 
 import type { ActivityFeedItem } from '../../shared/models/activity-feed.model';
@@ -21,6 +21,9 @@ export const DASHBOARD_MONTHS = 12;
 /** Número de entradas de actividad que se cargan para el feed. */
 const ACTIVITY_LIMIT = 20;
 
+/** Espera, en milisegundos, para agrupar en una recarga una ráfaga de eventos en vivo. */
+const LIVE_REFRESH_DEBOUNCE_MS = 1000;
+
 interface DashboardState {
   /** Indicadores agregados de `v_kpis`. */
   kpis: DashboardKpis;
@@ -36,6 +39,8 @@ interface DashboardState {
   liveError: string | null;
   loading: boolean;
   error: string | null;
+  /** Última petición lanzada; las respuestas de peticiones anteriores se descartan. */
+  _requestId: number;
 }
 
 const initialState: DashboardState = {
@@ -47,6 +52,7 @@ const initialState: DashboardState = {
   liveError: null,
   loading: false,
   error: null,
+  _requestId: 0,
 };
 
 /**
@@ -106,6 +112,35 @@ export const DashboardStore = signalStore(
   withComputed((store) => ({
     hasError: computed(() => store.error() !== null),
   })),
+  withMethods((store, dashboardApi = inject(DashboardApi), ordersApi = inject(OrdersApi)) => ({
+    /**
+     * Recarga en silencio los KPIs, las categorías y los pedidos, sin activar
+     * `loading`. Si falla, se conservan los datos que ya se muestran.
+     *
+     * El feed no se recarga: lo mantiene Realtime, y traerlo aquí haría que un
+     * evento ya incluido en la respuesta REST no sumara al contador.
+     */
+    async refresh(): Promise<void> {
+      if (store.loading()) return;
+      const requestId = store._requestId() + 1;
+      patchState(store, { _requestId: requestId });
+
+      try {
+        const data = await firstValueFrom(
+          forkJoin({
+            kpis: dashboardApi.kpis(),
+            byCategory: dashboardApi.productsByCategory(),
+            orders: ordersApi.listAll({ createdFrom: startOfWindow(DASHBOARD_MONTHS - 1).toISOString() }),
+          }),
+        );
+        if (requestId !== store._requestId()) return;
+
+        patchState(store, { ...data, error: null });
+      } catch {
+        // Recarga en segundo plano: un fallo no debe interrumpir la pantalla.
+      }
+    },
+  })),
   withMethods(
     (
       store,
@@ -118,7 +153,8 @@ export const DashboardStore = signalStore(
        * vista recibe un único estado coherente y puede mostrar un solo spinner.
        */
       async load(): Promise<void> {
-        patchState(store, { loading: true, error: null });
+        const requestId = store._requestId() + 1;
+        patchState(store, { loading: true, error: null, _requestId: requestId });
         const createdFrom = startOfWindow(DASHBOARD_MONTHS - 1).toISOString();
 
         try {
@@ -130,6 +166,7 @@ export const DashboardStore = signalStore(
               latestActivity: documents.latest<ActivityData>(ACTIVITY_COLLECTION, ACTIVITY_LIMIT),
             }),
           );
+          if (requestId !== store._requestId()) return;
 
           patchState(store, {
             kpis,
@@ -140,13 +177,15 @@ export const DashboardStore = signalStore(
             error: null,
           });
         } catch (error: unknown) {
+          if (requestId !== store._requestId()) return;
           patchState(store, { loading: false, error: toErrorMessage(error) });
         }
       },
 
       /**
        * Escucha la actividad en vivo y la añade al feed, sumando cada evento
-       * nuevo al contador. Las señales repintan la vista sin `NgZone.run` porque
+       * nuevo al contador. Tras cada ráfaga de eventos recarga en silencio los
+       * datos del dashboard. Las señales repintan la vista sin `NgZone.run` porque
        * la aplicación no usa zone.js.
        *
        * @returns Suscripción que la página debe cancelar al destruirse
@@ -154,20 +193,26 @@ export const DashboardStore = signalStore(
       connectActivity(): Subscription {
         patchState(store, { newEvents: 0, liveError: null });
 
-        return documents.changes$<ActivityData>(ACTIVITY_COLLECTION).subscribe({
-          next: (record) => {
-            if (store.latestActivity().some((item) => item.id === record.id)) return;
-            patchState(store, {
-              latestActivity: mergeActivity(store.latestActivity(), [toFeedItem(record)]),
-              newEvents: store.newEvents() + 1,
-            });
-          },
-          error: () => {
-            patchState(store, {
-              liveError: 'No se pudo conectar con la actividad en vivo. Recarga la página para volver a intentarlo.',
-            });
-          },
-        });
+        return documents
+          .changes$<ActivityData>(ACTIVITY_COLLECTION)
+          .pipe(
+            tap((record) => {
+              if (store.latestActivity().some((item) => item.id === record.id)) return;
+              patchState(store, {
+                latestActivity: mergeActivity(store.latestActivity(), [toFeedItem(record)]),
+                newEvents: store.newEvents() + 1,
+              });
+            }),
+            debounceTime(LIVE_REFRESH_DEBOUNCE_MS),
+          )
+          .subscribe({
+            next: () => void store.refresh(),
+            error: () => {
+              patchState(store, {
+                liveError: 'No se pudo conectar con la actividad en vivo. Recarga la página para volver a intentarlo.',
+              });
+            },
+          });
       },
 
       /** Pone a cero el contador de eventos nuevos. */

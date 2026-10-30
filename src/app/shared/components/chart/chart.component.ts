@@ -35,7 +35,7 @@ export class ChartComponent implements OnDestroy {
   /** Resumen textual que se ofrece a lectores de pantalla. */
   readonly summary = input<readonly string[]>([]);
 
-  /** Altura CSS del lienzo. */
+  /** Altura CSS del contenedor del lienzo; el gráfico la ocupa siempre entera. */
   readonly height = input('20rem');
 
   /** Emite el punto seleccionado al hacer clic sobre el gráfico. */
@@ -80,7 +80,9 @@ export class ChartComponent implements OnDestroy {
 
   /**
    * Añade la emisión de `pointSelect` a las opciones del gráfico, respetando
-   * el manejador `onClick` que haya configurado la página.
+   * el manejador `onClick` que haya configurado la página. Fuerza además
+   * `maintainAspectRatio: false` para que el gráfico se ajuste a la altura del
+   * contenedor, sea cual sea su tipo.
    *
    * @param options Opciones originales
    * @returns Opciones con el manejador de selección
@@ -88,6 +90,7 @@ export class ChartComponent implements OnDestroy {
   private withPointSelection(options: ChartOptions): ChartOptions {
     return {
       ...options,
+      maintainAspectRatio: false,
       onClick: (event, elements, chart) => {
         options.onClick?.(event, elements, chart);
         const point = elements[0];

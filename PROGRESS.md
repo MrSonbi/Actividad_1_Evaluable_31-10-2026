@@ -76,6 +76,8 @@
 - F5b: contador de eventos nuevos en la barra superior del dashboard; al pulsarlo se marca como visto. Un fallo del canal muestra un aviso sin ocultar el resto de la pantalla.
 - F5b: los botones «Exportar PDF/CSV» emiten `exportRequested` y aún no generan archivos (llega en F6).
 - F5b: `app-order-status-filter` genera un `id` por instancia: Ionic mantiene en el DOM las páginas visitadas y el `id` fijo se repetía entre pedidos y dashboard, dejando sin etiqueta al segundo selector.
+- Fix dashboard: `app-chart` aplica la altura a un contenedor `position: relative` que envuelve al lienzo y fuerza `maintainAspectRatio: false`, de modo que Chart.js ya no redimensiona el gráfico según su contenido. El estado vacío de la rosquilla ocupa la misma altura (18rem).
+- Fix dashboard: `DashboardStore.refresh()` recarga KPIs, categorías y pedidos sin `loading`; si falla, conserva los datos. Se lanza al volver a la página (`ionViewWillEnter`, salvo la primera entrada) y 1 s después de la última actividad en vivo. El feed no se recarga porque lo mantiene Realtime. Las respuestas de peticiones antiguas se descartan con `_requestId`.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -90,3 +92,4 @@
 - 2026-10-30: F4b completada - listado de pedidos de solo lectura con datos reales y filtro por estado mediante un componente con `model()`, menú con «Pedidos», retirada de `/components-demo`, revisión del repintado de errores de los formularios de F4a y tests nuevos de pedidos y del filtro. Pendiente de que el usuario ejecute lint/test/build.
 - 2026-10-30: F5a completada - `DashboardStore` con `forkJoin`, KPIs y dos gráficos accesibles en `/dashboard`, filtro `createdFrom` en `OrdersApi`, helpers de series y tests del store, de las series y de la página. Pendiente de que el usuario ejecute lint/test/build y de F5b.
 - 2026-10-30: F5b con PR abierto - filtros en memoria, KPIs del periodo, rosquilla por estado, feed en vivo con contador, botones de exportación que emiten el evento y tests. La rama parte de `feature/f5a-dashboard` porque el PR #8 sigue abierto. Sin ejecutar lint/test/build (los ejecuta el usuario).
+- 2026-10-30: Fix `fix/dashboard-chart-kpis` con PR abierto - altura estable de los gráficos al filtrar y recarga silenciosa de los datos del dashboard al volver a la página y con la actividad en vivo (debounce de 1 s). Tests ampliados, sin ejecutar lint/test/build (los ejecuta el usuario).

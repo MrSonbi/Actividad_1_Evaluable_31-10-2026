@@ -93,6 +93,26 @@ describe('ChartComponent', () => {
     expect(pointSpy).toHaveBeenCalledWith({ index: 1, datasetIndex: 0 });
   });
 
+  it('aplica la altura al contenedor del lienzo y no al lienzo', () => {
+    fixture.componentRef.setInput('height', '18rem');
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const container = element.querySelector<HTMLElement>('.chart__canvas');
+    expect(container?.style.height).toBe('18rem');
+    expect(container?.querySelector('canvas')?.style.height).toBe('');
+  });
+
+  it('mantiene maintainAspectRatio en false aunque las opciones pidan lo contrario', () => {
+    fixture.componentRef.setInput('options', { maintainAspectRatio: true });
+    fixture.detectChanges();
+
+    const config = chartState.instances[chartState.instances.length - 1].config as {
+      options: { maintainAspectRatio: boolean };
+    };
+    expect(config.options.maintainAspectRatio).toBe(false);
+  });
+
   it('expone el lienzo como imagen accesible con resumen textual', () => {
     fixture.componentRef.setInput('summary', ['Enero: 2 pedidos', 'Febrero: 4 pedidos']);
     fixture.detectChanges();
