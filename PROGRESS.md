@@ -2,7 +2,7 @@
 
 ## Estado general
 - Fase actual: F4 · Funcionalidades y formularios (RA2) — mitad F4a (productos y clientes) completada; falta F4b (pedidos y cierre)
-- Rama de trabajo: feature/f4a-products-customers
+- Rama de trabajo: fix/list-sort-after-create (fix de listas y refresco tras el alta)
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -55,6 +55,7 @@
 - F4a: cada alta, edición y borrado registra actividad desde los stores (`ActivityLogService`).
 - F4a: `test-setup.ts` parchea `adoptedStyleSheets` también en `ShadowRoot` (jsdom lo expone como `undefined`) para que las páginas con componentes Ionic se puedan montar en Vitest.
 - F4a: comprobación de Supabase con la clave pública: `/auth/v1/health` responde 200 y `/rest/v1/{categories,products,customers,v_kpis}` responden 200. Sin sesión devuelven `[]`/ceros porque las políticas RLS son `to authenticated`; no hay credenciales demo en `.env` para verificar la carga autenticada.
+- Fix listas: `RestClient.listAll` recupera **todas** las filas con bloques `Range` + `Prefer: count=exact`, usando el total de `Content-Range` y parando en el último bloque (o ante `416`). Los stores ya no piden una página de 25: cargan la lista completa y crean/editan/borran en memoria sin recargar. La búsqueda, la ordenación y la paginación (`pageSize`) son solo de la tabla, en cliente.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -65,3 +66,4 @@
 - 2026-10-29: F2 completado - modelos, `RestClient`, APIs (products, categories, customers, orders, dashboard), `DocumentStore` + Realtime, `ActivityLogService`, stores de feature y tests con `HttpTestingController` (59 tests). Lint/test/build OK.
 - 2026-10-29: F3 completado - modelos compartidos y cinco componentes reutilizables (`app-data-table`, `app-stat-card`, `app-chart`, `app-empty-state`, `app-activity-feed`) con TSDoc y 3+ tests cada uno; página temporal `/components-demo` solo para admin. Lint/test/build OK (83 tests).
 - 2026-10-29: F4a completada - pantallas de productos y clientes con datos reales, formularios modales, validador asíncrono de SKU/email, confirmación de borrado, toasts y actividad; tests de validador y de visibilidad por rol (96 tests). Lint/test/build OK. Pendiente F4b: pedidos y retirada de `/components-demo`.
+- 2026-10-30: Fix `fix/list-sort-after-create` - causa: el `pageSize` de 25 de los stores llegaba a `RestClient.page` y solo se cargaba un bloque; la tabla buscaba, ordenaba y paginaba sobre esas 25 filas, y el alta quedaba fuera si no entraba en la primera página por nombre. Ahora `RestClient.listAll` trae todos los bloques, los stores cargan la lista completa y las altas/ediciones/borrados se aplican en memoria. Tests: carga por bloques, orden sobre el total y alta visible sin búsqueda.
