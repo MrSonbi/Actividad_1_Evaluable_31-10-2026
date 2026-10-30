@@ -4,7 +4,7 @@ Eres un ingeniero frontend senior. Construye ESTE proyecto completo siguiendo la
 Lee este archivo al inicio de cada sesión y consulta `PROGRESS.md` para saber por dónde vas.
 
 ## 0. Reglas de trabajo (obligatorias)
-1. Trabaja por fases, una rama `feature/fN-nombre` por fase, desde `develop`. Al acabar: commits pequeños con push, abre el PR hacia `develop` con `gh pr create` y PARA. NO fusiones el PR ni empieces la siguiente fase: el usuario prueba y lo fusiona él, y te pedirá la siguiente. Actualiza `PROGRESS.md` en la rama.
+1. Trabaja por fases, una rama `feature/fN-nombre` por fase, desde `develop`. Al acabar: commits pequeños con push, abre el PR hacia `develop` con `gh pr create` y PARA. NO fusiones el PR ni empieces la siguiente fase: el usuario prueba y lo fusiona él, y te pedirá la siguiente. Actualiza `PROGRESS.md` en la rama. Está PROHIBIDO ejecutar `gh pr merge` o `git merge` hacia `develop` o `main`: eso lo hace siempre el usuario después de probar. Si ves un PR abierto, no lo fusiones.
 2. Bloqueos (para y pregunta al usuario SOLO en estos casos): falta `.env` o está vacío; falla `git push` por credenciales; una acción destructiva fuera del proyecto.
 3. Nunca inventes URLs, claves ni versiones. Si dudas de una API (Ionic standalone, NgRx Signals, Chart.js, jsPDF-AutoTable, Compodoc) consulta la documentación oficial con `webfetch`.
 4. No hagas más de lo pedido ni refactorices fuera de la fase actual.
@@ -12,10 +12,12 @@ Lee este archivo al inicio de cada sesión y consulta `PROGRESS.md` para saber p
 6. Idioma: interfaz y documentación en español (es-ES); identificadores de código en inglés; comentarios TSDoc en español.
 7. TypeScript `strict`, sin `any`, sin `console.log` en el código final, ESLint sin errores.
 8. NO ejecutes lint, test ni build, ni pegues sus salidas: los ejecuta el usuario. Sí escribe los archivos .spec.ts de cada pieza. Termina cada fase con un resumen corto de qué archivos creaste o cambiaste, y no declares "verificado" nada que no hayas ejecutado.
+9. Listados: los stores descargan la lista COMPLETA con `RestClient.listAll` (en bloques con `Range`) y `app-data-table` busca, ordena y pagina en el cliente. No pagines ni busques en el servidor. Tras crear, editar o borrar, actualiza el estado del store sin perder la ordenación ni la página de la tabla.
+10. `PROGRESS.md` debe reflejar el estado real: una fase solo se marca "PR abierto" hasta que el usuario la fusione. Nunca escribas "fusionada" ni "verificada".
 
 ## 1. Qué es
 App de gestión empresarial (productos, clientes, pedidos) con login y 2 roles: **admin** y **user**. Debe ser PWA, accesible (WCAG AA), responsive mobile-first, desplegada en Vercel.
-Repo: https://github.com/MrSonbi/Actividad-individual-1-Individual-DI (ya clonado; trabaja en la raíz).
+Repo: https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026 (ya clonado; trabaja en la raíz).
 
 ## 2. Stack (decisiones cerradas)
 - Ionic + Angular **standalone** (sin NgModules ni `IonicModule`; importa componentes de `@ionic/angular/standalone` y registra iconos con `addIcons`). Usa las últimas versiones estables compatibles entre sí. Mantén la detección de cambios global que traiga el starter; en componentes usa `OnPush` + signals.
@@ -56,7 +58,7 @@ Comprueba `node -v`, `git status`. Asegura ramas `main` y `develop`; trabaja en 
 Genera Ionic Angular standalone con plantilla sidemenu (`ionic start` con tipo `angular-standalone`; si falla por carpeta no vacía, genera en carpeta temporal y mueve todo a la raíz respetando `.git` y `README.md`).
 Añade: `@supabase/supabase-js`, `@ngrx/signals`, `chart.js`, `jspdf`, `jspdf-autotable`, `angular-eslint`, `@compodoc/compodoc` (dev), `@angular/pwa`.
 Entorno: `scripts/set-env.mjs` genera `src/environments/environment.ts` desde `SUPABASE_URL` y `SUPABASE_KEY` (variables de entorno o `.env`), ejecutado en `prestart`, `prebuild` y `pretest`. `.env` y `environment.ts` en `.gitignore`; commitea `.env.example` (valores vacíos) y `environment.example.ts`.
-`.gitignore`, `.editorconfig`, `engines` en package.json. Verifica build y test. Commit: `chore: andamiaje Ionic Angular standalone`.
+`.gitignore`, `.editorconfig`, `engines` en package.json. Commit: chore: andamiaje Ionic Angular standalone.
 
 ### F1 · Auth, rutas y control de acceso (RA1)
 - Cliente Supabase (InjectionToken + factory) con `persistSession` y `autoRefreshToken`.
@@ -119,8 +121,8 @@ Standalone, `OnPush`, agnósticos (solo `input()`/`output()`/`model()`, sin inye
 - `vercel.json`: `outputDirectory` = carpeta REAL de salida del build (compruébala), `buildCommand`, y `rewrites` de `/(.*)` a `/index.html` para que las rutas profundas no den 404. NO desactives los despliegues automáticos de Vercel.
 - `.github/workflows/ci.yml` (PR y push a `develop`/`main`): install → lint → tests (sin watch, headless) → build, con `SUPABASE_URL`/`SUPABASE_KEY` ficticios; job `docs` que genera Compodoc y lo sube como artefacto.
 - `.github/workflows/deploy.yml` (push a `main`): job `test` y job `deploy` con `needs: test` usando Vercel CLI y los secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`; que se omita limpiamente si los secrets no existen. Documenta en el README cómo activarlo.
-- Git Flow: `main` ← PR ← `develop` ← PR ← `feature/*`. Si `gh` está instalado y autenticado, abre y fusiona PR con `gh`; si no, `git merge --no-ff`. Commits pequeños y frecuentes (≥ 4 por fase) con Conventional Commits en español (`feat(auth): añade guard por rol`). `git push` tras cada merge. Prohibido `push --force` y reescribir historial.
-- Al terminar: PR `develop` → `main`, tag `v1.0.0`.
+- Git Flow: `main` ← PR ← `develop` ← PR ← `feature/*`. Abre cada PR con `gh pr create` y NO lo fusiones (regla 1): lo fusiona siempre el usuario. Commits pequeños y frecuentes (≥ 4 por fase) con Conventional Commits en español (`feat(auth): añade guard por rol`). `git push` tras cada commit. Prohibido `push --force` y reescribir historial.
+- Al terminar: abre el PR `develop` → `main` y propón el tag `v1.0.0`; el usuario lo fusiona y lo crea.
 
 ### F10 · Cierre
 Crea `ENTREGA.md` con plantilla de los 5 entregables (URL repo, URL producción, credenciales: "ver PDF", informe Lighthouse, documentación) y resume en el chat: qué falta por hacer al usuario (variables en Vercel, secrets, medir Lighthouse autenticado).
