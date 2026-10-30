@@ -1,13 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-<<<<<<< HEAD
-- Fase actual: F4 · Funcionalidades y formularios (RA2) — mitad F4a (productos y clientes) completada; falta F4b (pedidos y cierre)
-- Rama de trabajo: fix/list-sort-after-create (fix de listas y refresco tras el alta)
-=======
-- Fase actual: F4 · Funcionalidades y formularios (RA2) — completada (F4a y F4b); pendiente de validación de lint/test/build por el usuario
-- Rama de trabajo: feature/f4b-orders
->>>>>>> origin/develop
+- Fase actual: F5 · Dashboard (solo admin) (RA5) — mitad F5a (store, KPIs y dos gráficos) completada; falta F5b (filtros, feed en vivo y exportación)
+- Rama de trabajo: feature/f5a-dashboard
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -20,6 +15,8 @@
 - Fecha fin F4a: 2026-10-29
 - Fecha inicio F4b: 2026-10-30
 - Fecha fin F4b: 2026-10-30
+- Fecha inicio F5a: 2026-10-30
+- Fecha fin F5a: 2026-10-30
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
@@ -27,7 +24,7 @@
 - [x] F2 · Capa de datos asíncrona (RA5)
 - [x] F3 · Componentes reutilizables (RA3)
 - [x] F4 · Funcionalidades y formularios (RA2)
-- [ ] F5 · Dashboard (solo admin) (RA5)
+- [ ] F5 · Dashboard (solo admin) (RA5) — F5a completada; falta F5b
 - [ ] F6 · Informes PDF y CSV (RA5)
 - [ ] F7 · Accesibilidad, responsive y PWA (RA4)
 - [ ] F8 · Documentación (RA6)
@@ -62,15 +59,16 @@
 - F4a: cada alta, edición y borrado registra actividad desde los stores (`ActivityLogService`).
 - F4a: `test-setup.ts` parchea `adoptedStyleSheets` también en `ShadowRoot` (jsdom lo expone como `undefined`) para que las páginas con componentes Ionic se puedan montar en Vitest.
 - F4a: comprobación de Supabase con la clave pública: `/auth/v1/health` responde 200 y `/rest/v1/{categories,products,customers,v_kpis}` responden 200. Sin sesión devuelven `[]`/ceros porque las políticas RLS son `to authenticated`; no hay credenciales demo en `.env` para verificar la carga autenticada.
-<<<<<<< HEAD
 - Fix listas: `RestClient.listAll` recupera **todas** las filas con bloques `Range` + `Prefer: count=exact`, usando el total de `Content-Range` y parando en el último bloque (o ante `416`). Los stores ya no piden una página de 25: cargan la lista completa y crean/editan/borran en memoria sin recargar. La búsqueda, la ordenación y la paginación (`pageSize`) son solo de la tabla, en cliente.
-=======
 - F4b: `OrdersPage` (`/orders`, accesible a ambos roles) usa `app-data-table` en modo solo lectura y `OrdersStore` para datos reales; el nombre del cliente llega en el `select` embebido (`*,customers(full_name)`) y el estado se traduce al español en una fila derivada (`computed`).
 - F4b: el filtro por estado es el componente propio `app-order-status-filter`, que expone `value = model<OrderStatus | null>()`; la página lo enlaza con `[(value)]` y recarga con `OrdersStore.setStatus`. El buscador de `app-data-table` mantiene `[(ngModel)]`.
 - F4b: se elimina la página temporal `/components-demo` (ruta, carpeta y entrada de menú); el menú incorpora «Pedidos» con icono `cart-outline`.
 - F4b: revisión de los formularios de F4a. `showError()`/`isPending()` se repintan ahora suscribiéndose a `control.events` (valor, estado, pristine y touched) en lugar de solo `statusChanges`, de modo que el error aparece al abandonar un campo obligatorio vacío aunque su estado de validez no cambie. Se mantienen los errores tras `touched`/envío, `aria-invalid`, `aria-describedby`, el foco al primer campo inválido y el spinner del botón.
 - F4b: tests nuevos de `OrdersPage` (carga, cliente, estado traducido, ausencia de acciones de escritura, filtro y error) y de `OrderStatusFilterComponent` (opciones, valor de `model()` y emisión al cambiar).
->>>>>>> origin/develop
+- F5a: `DashboardStore` (`core/data/dashboard.store.ts`) carga con `forkJoin({ kpis, byCategory, orders, latestActivity })` desde `DashboardApi`, `OrdersApi.listAll` y `DocumentStore.latest('activity', 20)`. Expone `loading`, `error`, `hasError` e `isEmpty`; `load()` se puede repetir para el botón «Reintentar».
+- F5a: `OrdersQuery` gana `createdFrom` (ISO 8601), que `OrdersApi` traduce a `created_at=gte.<fecha>`; el dashboard pide los pedidos desde el primer día del mes que abre la ventana de 12 meses.
+- F5a: `features/dashboard/dashboard-charts.ts` contiene funciones puras para agrupar ingresos por mes (excluye cancelados y rellena meses sin datos) y productos por categoría, con etiquetas y resúmenes en español; se testean por separado.
+- F5a: `/dashboard` pinta los cinco KPIs con `app-stat-card` y dos `app-chart` (líneas de ingresos y barras por categoría) con `ariaLabel`, resumen textual, spinner accesible y aviso de error con «Reintentar». El feed en vivo, los filtros de periodo/estado y la exportación quedan para F5b.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -81,8 +79,6 @@
 - 2026-10-29: F2 completado - modelos, `RestClient`, APIs (products, categories, customers, orders, dashboard), `DocumentStore` + Realtime, `ActivityLogService`, stores de feature y tests con `HttpTestingController` (59 tests). Lint/test/build OK.
 - 2026-10-29: F3 completado - modelos compartidos y cinco componentes reutilizables (`app-data-table`, `app-stat-card`, `app-chart`, `app-empty-state`, `app-activity-feed`) con TSDoc y 3+ tests cada uno; página temporal `/components-demo` solo para admin. Lint/test/build OK (83 tests).
 - 2026-10-29: F4a completada - pantallas de productos y clientes con datos reales, formularios modales, validador asíncrono de SKU/email, confirmación de borrado, toasts y actividad; tests de validador y de visibilidad por rol (96 tests). Lint/test/build OK. Pendiente F4b: pedidos y retirada de `/components-demo`.
-<<<<<<< HEAD
 - 2026-10-30: Fix `fix/list-sort-after-create` - causa: el `pageSize` de 25 de los stores llegaba a `RestClient.page` y solo se cargaba un bloque; la tabla buscaba, ordenaba y paginaba sobre esas 25 filas, y el alta quedaba fuera si no entraba en la primera página por nombre. Ahora `RestClient.listAll` trae todos los bloques, los stores cargan la lista completa y las altas/ediciones/borrados se aplican en memoria. Tests: carga por bloques, orden sobre el total y alta visible sin búsqueda.
-=======
 - 2026-10-30: F4b completada - listado de pedidos de solo lectura con datos reales y filtro por estado mediante un componente con `model()`, menú con «Pedidos», retirada de `/components-demo`, revisión del repintado de errores de los formularios de F4a y tests nuevos de pedidos y del filtro. Pendiente de que el usuario ejecute lint/test/build.
->>>>>>> origin/develop
+- 2026-10-30: F5a completada - `DashboardStore` con `forkJoin`, KPIs y dos gráficos accesibles en `/dashboard`, filtro `createdFrom` en `OrdersApi`, helpers de series y tests del store, de las series y de la página. Pendiente de que el usuario ejecute lint/test/build y de F5b.
