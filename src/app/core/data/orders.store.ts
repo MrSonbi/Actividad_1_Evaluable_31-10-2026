@@ -36,12 +36,12 @@ export const OrdersStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
-    /** Pedidos que cumplen el filtro de estado activo. */
     filteredItems: computed(() => {
       const status = store.status();
-      return status === null ? store.items() : store.items().filter((order) => order.status === status);
+      return status ? store.items().filter((order) => order.status === status) : store.items();
     }),
-    /** Número de pedidos que cumplen el filtro activo. */
+  })),
+  withComputed((store) => ({
     total: computed(() => store.filteredItems().length),
     isEmpty: computed(() => !store.loading() && store.filteredItems().length === 0),
     hasError: computed(() => store.error() !== null),
