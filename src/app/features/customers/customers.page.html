@@ -1,5 +1,8 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button aria-label="Abrir menú"></ion-menu-button>
+    </ion-buttons>
     <ion-title>Clientes</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openCreate()">
@@ -10,7 +13,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" role="main">
   <header class="page-header">
     <h1 class="page-title">Clientes</h1>
     <p class="page-intro">
@@ -41,7 +44,7 @@
   />
 </ion-content>
 
-<ion-modal [isOpen]="formOpen()" (didDismiss)="onModalDismiss()">
+<ion-modal aria-label="Formulario de cliente" [isOpen]="formOpen()" (didDismiss)="onModalDismiss()">
   <ng-template>
     <ion-header>
       <ion-toolbar>

@@ -48,18 +48,18 @@
 }
 
 .activity__badge--create {
-  color: var(--ion-color-success-shade, #0a6b34);
-  background: var(--ion-color-success-tint, #d1f2df);
+  color: var(--app-badge-create-color);
+  background: var(--app-badge-create-background);
 }
 
 .activity__badge--update {
-  color: var(--ion-color-warning-shade, #8a5a00);
-  background: var(--ion-color-warning-tint, #ffefc5);
+  color: var(--app-badge-update-color);
+  background: var(--app-badge-update-background);
 }
 
 .activity__badge--delete {
-  color: var(--ion-color-danger-shade, #a0000c);
-  background: var(--ion-color-danger-tint, #ffd6d9);
+  color: var(--app-badge-delete-color);
+  background: var(--app-badge-delete-background);
 }
 
 .activity__body {

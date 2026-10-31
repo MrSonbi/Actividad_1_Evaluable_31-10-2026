@@ -3,7 +3,7 @@
     <ion-icon class="stat-card__icon" [attr.name]="icon()" aria-hidden="true"></ion-icon>
   }
   <div class="stat-card__body">
-    <h3 class="stat-card__title">{{ title() }}</h3>
+    <p class="stat-card__title">{{ title() }}</p>
     <p class="stat-card__value">{{ value() }}</p>
     @if (trend(); as trend) {
       <p [class]="'stat-card__trend stat-card__trend--' + trend.direction">
