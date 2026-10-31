@@ -12,15 +12,11 @@
 }
 
 .status-filter__select {
+  min-height: 2.75rem;
   padding: 0.55rem 0.7rem;
   font: inherit;
   color: inherit;
   background: transparent;
   border: 1px solid var(--ion-color-medium, #6c757d);
   border-radius: 0.5rem;
-}
-
-.status-filter__select:focus-visible {
-  outline: 2px solid var(--ion-color-primary, #0054e9);
-  outline-offset: 1px;
 }

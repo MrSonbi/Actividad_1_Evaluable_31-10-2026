@@ -1,6 +1,15 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { IonContent, IonHeader, IonText, IonTitle, IonToolbar, ToastController } from '@ionic/angular/standalone';
+import {
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonMenuButton,
+  IonText,
+  IonTitle,
+  IonToolbar,
+  ToastController,
+} from '@ionic/angular/standalone';
 
 import { OrdersStore } from '../../core/data/orders.store';
 import type { OrderStatus, OrderWithCustomer } from '../../core/models/order.model';
@@ -27,9 +36,18 @@ interface OrderTableRow extends OrderWithCustomer {
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonText, DataTableComponent, OrderStatusFilterComponent],
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonText,
+    DataTableComponent,
+    OrderStatusFilterComponent,
+  ],
   templateUrl: './orders.page.html',
-  styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrdersPage implements OnInit {

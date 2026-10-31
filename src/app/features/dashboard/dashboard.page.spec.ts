@@ -9,13 +9,25 @@ import { DashboardStore } from '../../core/data/dashboard.store';
 import type { DashboardKpis, ProductsByCategory } from '../../core/models/dashboard.model';
 import type { OrderWithCustomer } from '../../core/models/order.model';
 import type { ActivityFeedItem } from '../../shared/models/activity-feed.model';
+import { ChartThemeService } from '../../shared/utils/chart-theme.service';
 import { ReportService } from '../../shared/utils/report/report.service';
 
 import { DashboardPage } from './dashboard.page';
 
 vi.mock('chart.js/auto', () => ({
   default: class MockChart {
+    static defaults: Record<string, unknown> = {};
+
     destroyed = false;
+    data: unknown;
+
+    constructor(_canvas: unknown, config: { data: unknown }) {
+      this.data = config.data;
+    }
+
+    update(): void {
+      return undefined;
+    }
 
     destroy(): void {
       this.destroyed = true;
@@ -108,6 +120,18 @@ describe('DashboardPage', () => {
         provideIonicAngular(),
         { provide: DashboardStore, useValue: store },
         { provide: ToastController, useValue: toasts },
+        {
+          provide: ChartThemeService,
+          useValue: {
+            colors: signal({
+              text: '#d6d8dc',
+              grid: '#3a3b3f',
+              surface: '#1e1e1e',
+              primary: '#6ea8ff',
+              status: ['#fbbf24', '#6ea8ff', '#2dd4bf', '#f87171'],
+            }),
+          },
+        },
         { provide: ReportService, useValue: reports },
       ],
     }).compileComponents();
@@ -201,6 +225,31 @@ describe('DashboardPage', () => {
     expect(captions().some((caption) => caption.includes('Periféricos: 7 productos'))).toBe(true);
     expect(captions().some((caption) => caption.includes('99,90'))).toBe(true);
     expect(captions().some((caption) => caption.includes('Pagado: 1 pedido (50 %)'))).toBe(true);
+  });
+
+  it('tiene un único h1 sin saltos de nivel hasta los títulos de los gráficos', () => {
+    loading.set(false);
+    fixture.detectChanges();
+
+    const levels = Array.from(element().querySelectorAll('h1, h2, h3')).map((heading) => heading.tagName);
+
+    expect(levels.filter((level) => level === 'H1')).toHaveLength(1);
+    expect(levels[1]).toBe('H2');
+    expect(element().querySelector('ion-content')?.getAttribute('role')).toBe('main');
+  });
+
+  it('colorea los gráficos con el tema y separa los sectores con el color del panel', () => {
+    loading.set(false);
+    fixture.detectChanges();
+
+    const page = fixture.componentInstance as unknown as {
+      statusData: () => { datasets: { backgroundColor: string[]; borderColor: string }[] };
+      revenueData: () => { datasets: { borderColor: string }[] };
+    };
+
+    expect(page.statusData().datasets[0].borderColor).toBe('#1e1e1e');
+    expect(page.statusData().datasets[0].backgroundColor).toContain('#fbbf24');
+    expect(page.revenueData().datasets[0].borderColor).toBe('#6ea8ff');
   });
 
   describe('filtros', () => {

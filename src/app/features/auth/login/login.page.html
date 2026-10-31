@@ -1,10 +1,14 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Iniciar sesión</ion-title>
+    <ion-title>Inventario</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" role="main">
+  <header class="page-header">
+    <h1 class="page-title">Iniciar sesión</h1>
+  </header>
+
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <ion-list>
       <ion-item>
@@ -15,12 +19,11 @@
           labelPlacement="stacked"
           autocomplete="email"
           [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          [attr.aria-describedby]="form.controls.email.touched && form.controls.email.invalid ? 'login-email-error' : null"
         ></ion-input>
       </ion-item>
       @if (form.controls.email.touched && form.controls.email.invalid) {
-      <ion-text color="danger">
-        <p class="error">Introduce un correo válido</p>
-      </ion-text>
+      <p class="field-error" id="login-email-error" role="alert">Introduce un correo válido</p>
       }
 
       <ion-item>
@@ -31,18 +34,21 @@
           labelPlacement="stacked"
           autocomplete="current-password"
           [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+          [attr.aria-describedby]="
+            form.controls.password.touched && form.controls.password.invalid ? 'login-password-error' : null
+          "
         ></ion-input>
       </ion-item>
       @if (form.controls.password.touched && form.controls.password.invalid) {
-      <ion-text color="danger">
-        <p class="error">La contraseña es obligatoria (mínimo 6 caracteres)</p>
-      </ion-text>
+      <p class="field-error" id="login-password-error" role="alert">
+        La contraseña es obligatoria (mínimo 6 caracteres)
+      </p>
       }
     </ion-list>
 
     @if (authStore.error()) {
     <ion-text color="danger" role="alert">
-      <p>{{ authStore.error() }}</p>
+      <p class="page-error">{{ authStore.error() }}</p>
     </ion-text>
     }
 
@@ -54,7 +60,8 @@
       [attr.aria-busy]="authStore.loading()"
     >
       @if (authStore.loading()) {
-      <ion-spinner name="dots"></ion-spinner>
+      <ion-spinner name="dots" aria-hidden="true"></ion-spinner>
+      <span class="visually-hidden">Entrando…</span>
       } @else { Entrar }
     </ion-button>
   </form>
