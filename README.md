@@ -95,6 +95,19 @@ La interfaz oculta las acciones no permitidas y las rutas de administración usa
 - [Manual de usuario](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/blob/main/docs/MANUAL_USUARIO.md), resumido también en la página `/help` de la aplicación.
 - Documentación técnica: ejecuta `npm run docs` y abre `documentation/index.html`. Esa carpeta se genera y no se versiona. La configuración está en `.compodocrc.json` y `tsconfig.doc.json`.
 
+## Integración continua
+
+[![CI (main)](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/actions/workflows/ci.yml?query=branch%3Amain) [![CI (develop)](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/actions/workflows/ci.yml?query=branch%3Adevelop)
+
+| Workflow                            | Cuándo se ejecuta                                | Qué hace                                                                 |
+| ----------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------ |
+| [`ci.yml`](.github/workflows/ci.yml)     | *Pull requests* y *push* a `main` y `develop` | Instala las dependencias, y ejecuta lint, pruebas unitarias y compilación |
+| [`docs.yml`](.github/workflows/docs.yml) | *Push* a `main`                                 | Genera la documentación técnica y la publica en GitHub Pages             |
+
+El CI usa valores ficticios de `SUPABASE_URL` y `SUPABASE_KEY`, así que no necesita secretos.
+
+Documentación técnica publicada: <https://mrsonbi.github.io/Actividad_1_Evaluable_31-10-2026/>
+
 ## Flujo de Git
 
 Se usa Git Flow con *pull requests*:
