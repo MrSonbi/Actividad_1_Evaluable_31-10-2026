@@ -90,6 +90,7 @@
 - F7: el enlace «Saltar al contenido» mueve el foco por código, porque con `<base href="/">` el enlace `#` navegaba a la raíz.
 - F7: PWA montada a mano (`ngsw-config.json`, `manifest.webmanifest`, iconos y `provideServiceWorker` solo fuera de modo desarrollo): el repo tenía `@angular/pwa` instalado, pero sin configurar. `@angular/service-worker` añadido con `package-lock.json` sincronizado. Las peticiones a Supabase no se cachean.
 - F7: `npm run lighthouse` sirve `www` con un servidor Node propio y guarda los informes de `/login` en `docs/lighthouse`.
+- Fix Lighthouse: `src/robots.txt` se copia a la raíz de la build. Vercel sirve antes los archivos existentes que los `rewrites`, así que no se reescribe a `index.html`. `app-stat-card` usa `<p>` para el título: es una etiqueta de dato, no el título de una sección.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -107,3 +108,4 @@
 - 2026-10-30: Fix `fix/dashboard-chart-kpis` con PR abierto - altura estable de los gráficos al filtrar y recarga silenciosa de los datos del dashboard al volver a la página y con la actividad en vivo (debounce de 1 s). Tests ampliados, sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: F6 con PR abierto - `ReportService` con CSV y PDF conectado a productos, clientes, pedidos y dashboard, con tests. Sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: F7 con PR abierto - accesibilidad, responsive, modo oscuro en gráficos, `chart.update()`, PWA y script de Lighthouse, con tests. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
+- 2026-10-31: Fix `fix/lighthouse-a11y` con PR abierto - etiquetas en el login, zoom permitido, jerarquía de encabezados del dashboard, `meta description` y `robots.txt`. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
