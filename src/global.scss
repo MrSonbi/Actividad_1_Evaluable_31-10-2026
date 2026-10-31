@@ -33,8 +33,9 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* La clase la pone ThemeService, según la elección del usuario o el sistema. */
+@import "@ionic/angular/css/palettes/dark.class.css";
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
 
 /* Encabezado y mensajes comunes a todas las páginas */
 .page-header {

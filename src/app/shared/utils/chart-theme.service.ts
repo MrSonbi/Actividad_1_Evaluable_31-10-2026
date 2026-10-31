@@ -1,4 +1,6 @@
-import { DOCUMENT, inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT, effect, inject, Injectable, signal } from '@angular/core';
+
+import { ThemeService } from './theme.service';
 
 /** Colores del tema activo que necesitan los gráficos. */
 export interface ChartThemeColors {
@@ -16,12 +18,14 @@ export interface ChartThemeColors {
 
 /**
  * Lee de las variables CSS los colores del tema para Chart.js, que dibuja en un
- * lienzo y no puede usar `var()`. Los actualiza si cambia el modo claro u oscuro
- * del sistema.
+ * lienzo y no puede usar `var()`. Los actualiza si cambia el modo claro u oscuro,
+ * ya sea por el sistema o por el botón de la cabecera.
  */
 @Injectable({ providedIn: 'root' })
 export class ChartThemeService {
   private readonly document = inject(DOCUMENT);
+  // Se crea antes de la primera lectura: es quien pone la clase del tema en `<html>`.
+  private readonly themeService = inject(ThemeService);
   private readonly current = signal(this.read(), {
     equal: (first, second) => JSON.stringify(first) === JSON.stringify(second),
   });
@@ -30,6 +34,11 @@ export class ChartThemeService {
   readonly colors = this.current.asReadonly();
 
   constructor() {
+    effect(() => {
+      this.themeService.isDark();
+      this.current.set(this.read());
+    });
+
     const view = this.document.defaultView;
     view?.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.current.set(this.read()));
 
@@ -48,7 +57,7 @@ export class ChartThemeService {
     return {
       text: token('--app-chart-text', '#3f4650'),
       grid: token('--app-chart-grid', '#d7d8da'),
-      surface: token('--ion-card-background', '#ffffff'),
+      surface: token('--app-chart-surface', '#ffffff'),
       primary: token('--app-chart-primary', '#0054e9'),
       status: [
         token('--app-chart-status-pending', '#b45309'),
