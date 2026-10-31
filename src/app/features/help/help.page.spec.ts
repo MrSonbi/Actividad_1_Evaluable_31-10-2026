@@ -16,7 +16,10 @@ describe('HelpPage', () => {
    * @param isAdmin Si el usuario es administrador
    * @param queryParams Parámetros de la URL
    */
-  async function setup(isAdmin: boolean, queryParams: Record<string, string> = {}): Promise<ComponentFixture<HelpPage>> {
+  async function setup(
+    isAdmin: boolean,
+    queryParams: Record<string, string> = {},
+  ): Promise<ComponentFixture<HelpPage>> {
     await TestBed.configureTestingModule({
       imports: [HelpPage],
       providers: [

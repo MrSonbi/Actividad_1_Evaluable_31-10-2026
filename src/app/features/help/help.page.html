@@ -13,18 +13,18 @@
 
   <ion-accordion-group [value]="openSection()">
     @for (section of sections(); track section.id) {
-      <ion-accordion [value]="section.id">
-        <ion-item slot="header">
-          <ion-label>{{ section.title }}</ion-label>
-        </ion-item>
-        <div slot="content" class="ion-padding">
-          <ul class="help-list">
-            @for (item of section.items; track item) {
-              <li>{{ item }}</li>
-            }
-          </ul>
-        </div>
-      </ion-accordion>
+    <ion-accordion [value]="section.id">
+      <ion-item slot="header">
+        <ion-label>{{ section.title }}</ion-label>
+      </ion-item>
+      <div slot="content" class="ion-padding">
+        <ul class="help-list">
+          @for (item of section.items; track item) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    </ion-accordion>
     }
   </ion-accordion-group>
 </ion-content>

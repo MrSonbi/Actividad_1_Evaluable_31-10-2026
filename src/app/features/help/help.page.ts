@@ -51,9 +51,7 @@ export class HelpPage {
   private readonly queryParams = toSignal(inject(ActivatedRoute).queryParams, { initialValue: {} });
 
   /** Secciones visibles para el rol actual. */
-  readonly sections = computed(() =>
-    HELP_SECTIONS.filter((section) => !section.adminOnly || this.authStore.isAdmin()),
-  );
+  readonly sections = computed(() => HELP_SECTIONS.filter((section) => !section.adminOnly || this.authStore.isAdmin()));
 
   /** Identificador de la sección abierta al entrar en la página. */
   readonly openSection = computed(() => {
