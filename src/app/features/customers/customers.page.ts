@@ -28,6 +28,7 @@ import { CustomersStore } from '../../core/data/customers.store';
 import { CustomersApi } from '../../core/data/sql/customers.api';
 import type { Customer, CustomerInput } from '../../core/models/customer.model';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import type { TableColumn } from '../../shared/models/table.model';
 import { ReportService, reportCount } from '../../shared/utils/report/report.service';
 import type { ReportFormat } from '../../shared/utils/report/report.service';
@@ -73,6 +74,7 @@ type CustomerField = keyof CustomerFormControls;
     IonSpinner,
     IonText,
     DataTableComponent,
+    ThemeToggleComponent,
   ],
   templateUrl: './customers.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

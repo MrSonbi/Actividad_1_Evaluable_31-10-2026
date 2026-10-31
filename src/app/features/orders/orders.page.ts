@@ -15,6 +15,7 @@ import { OrdersStore } from '../../core/data/orders.store';
 import type { OrderStatus, OrderWithCustomer } from '../../core/models/order.model';
 import { ORDER_STATUS_LABELS } from '../../core/models/order.model';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import type { TableColumn } from '../../shared/models/table.model';
 import { ReportService, reportCount } from '../../shared/utils/report/report.service';
 import type { ReportFormat } from '../../shared/utils/report/report.service';
@@ -46,6 +47,7 @@ interface OrderTableRow extends OrderWithCustomer {
     IonText,
     DataTableComponent,
     OrderStatusFilterComponent,
+    ThemeToggleComponent,
   ],
   templateUrl: './orders.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

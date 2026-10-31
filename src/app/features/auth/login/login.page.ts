@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonInput,
@@ -16,6 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthStore } from '../../../core/auth/auth.store';
+import { ThemeToggleComponent } from '../../../shared/components/theme-toggle/theme-toggle.component';
 
 /** Pantalla de acceso con correo electrónico y contraseña. */
 @Component({
@@ -32,8 +34,10 @@ import { AuthStore } from '../../../core/auth/auth.store';
     IonItem,
     IonInput,
     IonButton,
+    IonButtons,
     IonSpinner,
     IonText,
+    ThemeToggleComponent,
   ],
   templateUrl: './login.page.html',
 })

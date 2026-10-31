@@ -1,0 +1,25 @@
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  background: var(--app-control-bg);
+  border: 1px solid var(--app-control-border);
+  border-radius: 50%;
+}
+
+.theme-toggle:hover {
+  box-shadow: var(--app-glow);
+}
+
+svg {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
