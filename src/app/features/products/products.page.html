@@ -4,15 +4,15 @@
       <ion-menu-button aria-label="Abrir menú"></ion-menu-button>
     </ion-buttons>
     <ion-title>Productos</ion-title>
-    @if (authStore.isAdmin()) {
     <ion-buttons slot="end">
+      @if (authStore.isAdmin()) {
       <ion-button (click)="openCreate()">
         <ion-icon slot="start" name="add-outline" aria-hidden="true"></ion-icon>
         Nuevo producto
       </ion-button>
+      }
       <app-theme-toggle />
     </ion-buttons>
-    }
   </ion-toolbar>
 </ion-header>
 
