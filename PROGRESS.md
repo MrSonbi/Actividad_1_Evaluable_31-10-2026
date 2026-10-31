@@ -98,6 +98,8 @@
 - Fix Lighthouse: `src/robots.txt` se copia a la raíz de la build. Vercel sirve antes los archivos existentes que los `rewrites`, así que no se reescribe a `index.html`. `app-stat-card` usa `<p>` para el título: es una etiqueta de dato, no el título de una sección.
 - F9: por indicación del usuario, Vercel sigue desplegando por su cuenta desde `main`: no hay `deploy.yml` ni cambios en `vercel.json`. La documentación técnica se publica en GitHub Pages desde `documentation/`, en lugar de subirla como artefacto del CI.
 - F9: comprobado en una carpeta temporal que `scripts/set-env.mjs` termina bien sin `.env` (con y sin variables) y que Compodoc genera sin `environment.ts`, por lo que `docs.yml` no necesita variables. Los enlaces de Compodoc son relativos y sirven bajo la subruta del repositorio.
+- F7b: rediseño con tokens en `theme/variables.scss` y clase global `app-glass`, usada solo en superficies principales (nunca en filas). Los respaldos sólidos cambian los tokens en un único sitio. El contraste se calculó con un script en el peor caso de composición; el texto secundario usa `--app-text-muted` porque `--ion-color-medium` no llegaba a 4.5:1 sobre el fondo claro.
+- F7b: `ThemeService` alterna `ion-palette-dark`, por lo que se importa `dark.class.css` en lugar de `dark.system.css`, y se aplica en `provideAppInitializer`. El botón es un `<button>` nativo porque `ion-button` solo copia `aria-pressed` a su botón interno al cargarse. `ChartThemeService` relee los colores al cambiar el tema y lee `--app-chart-surface`.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -119,3 +121,4 @@
 - 2026-10-31: Fix `fix/lighthouse-a11y` con PR abierto - etiquetas en el login, zoom permitido, jerarquía de encabezados del dashboard, `meta description` y `robots.txt`. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
 - 2026-10-31: Merge de `develop` en `feature/f8-documentacion`: la rama ya incluye F7 y el fix de Lighthouse, y la entrada «Ayuda» se añade al menú de F7. Sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-31: F9 con PR abierto - workflows `ci.yml` y `docs.yml`, y sección «Integración continua» en el README. Sin ejecutar lint/test/build ni los workflows (los ejecuta el usuario y GitHub).
+- 2026-10-31: F7b con PR abierto - rediseño glassmorphism, botón de modo claro/oscuro, manual y ayuda actualizados. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).

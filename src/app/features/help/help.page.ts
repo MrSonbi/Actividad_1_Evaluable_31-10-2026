@@ -15,6 +15,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthStore } from '../../core/auth/auth.store';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 
 import { HELP_SECTIONS } from './help-content';
 
@@ -41,6 +42,7 @@ const DEFAULT_SECTION = 'access';
     IonMenuButton,
     IonTitle,
     IonToolbar,
+    ThemeToggleComponent,
   ],
   templateUrl: './help.page.html',
   styleUrls: ['./help.page.scss'],

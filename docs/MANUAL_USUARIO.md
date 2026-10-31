@@ -138,7 +138,9 @@ En el **Dashboard**, los botones **Exportar PDF** y **Exportar CSV** generan un 
 
 ## 10. Modo claro y modo oscuro
 
-La aplicación no tiene un botón para cambiar de modo: **usa automáticamente el modo que tenga configurado tu dispositivo**. Para cambiarlo, modifica la opción de apariencia de tu sistema operativo o de tu navegador.
+Al principio, la aplicación **usa el modo que tenga configurado tu dispositivo**.
+
+Para cambiarlo, pulsa el botón redondo con el icono de la luna o del sol, arriba a la derecha de la pantalla. Está en la pantalla de acceso y en las de Dashboard, Productos, Clientes, Pedidos y Ayuda. Tu elección se recuerda en este navegador la próxima vez que entres.
 
 ## 11. Instalar la aplicación (PWA)
 

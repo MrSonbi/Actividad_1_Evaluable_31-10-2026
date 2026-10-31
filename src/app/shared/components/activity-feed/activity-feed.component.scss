@@ -12,7 +12,7 @@
 .activity-feed__state {
   margin: 0;
   font-size: 0.875rem;
-  color: var(--ion-color-medium, #6c757d);
+  color: var(--app-text-muted);
 }
 
 .activity-feed__list {
@@ -29,7 +29,7 @@
   gap: 0.65rem;
   align-items: flex-start;
   padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--ion-color-light-shade, #d7d8da);
+  border-bottom: 1px solid var(--app-glass-border);
 }
 
 .activity:last-child {
@@ -78,5 +78,5 @@
   gap: 0.35rem;
   margin: 0.15rem 0 0;
   font-size: 0.75rem;
-  color: var(--ion-color-medium, #6c757d);
+  color: var(--app-text-muted);
 }

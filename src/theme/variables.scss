@@ -1,10 +1,33 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
 
-// Colores propios con contraste comprobado: al menos 4.5:1 en texto y 3:1 en
-// las series de los gráficos, tanto en modo claro como oscuro. Los tonos
-// `shade`/`tint` de Ionic no sirven aquí porque entre sí apenas contrastan.
+// Tokens de diseño. El contraste está calculado en el peor caso, componiendo cada
+// superficie sobre el tono más extremo del fondo: al menos 4.5:1 en texto y 3:1 en
+// controles y series de los gráficos. Si cambia un color o una opacidad, hay que
+// volver a calcularlo.
 :root {
+  color-scheme: light;
+
+  // Los focos del fondo terminan en estos tonos, que son los usados en el cálculo.
+  --app-bg-solid: #f2f5fd;
+  --app-bg: radial-gradient(60rem at 8% 0%, #d6e3fd, transparent 65%),
+    radial-gradient(50rem at 95% 100%, #e3d9fb, transparent 65%), linear-gradient(135deg, #eef3ff, #f5f0ff);
+
+  --app-surface-solid: #ffffff;
+  --app-surface: rgb(255 255 255 / 72%);
+  --app-surface-strong: rgb(255 255 255 / 86%);
+  --app-control-bg: rgb(255 255 255 / 60%);
+  --app-control-border: #6b7280;
+  --app-glass-border: rgb(0 71 199 / 18%);
+  --app-glass-filter: blur(14px);
+  --app-glass-shadow: 0 0.5rem 1.5rem rgb(30 50 110 / 10%);
+  --app-radius: 1rem;
+  --app-radius-small: 0.625rem;
+
+  --app-accent: #0047c7;
+  --app-glow: 0 0 0.75rem rgb(0 71 199 / 28%);
+  --app-text-muted: #4a5163;
+
   --app-success-text: #0f7b3f;
 
   --app-badge-create-color: #0a5c2d;
@@ -16,6 +39,7 @@
 
   --app-chart-text: #3f4650;
   --app-chart-grid: #d7d8da;
+  --app-chart-surface: #fbfcff;
   --app-chart-primary: #0054e9;
   --app-chart-status-pending: #b45309;
   --app-chart-status-paid: #0054e9;
@@ -23,23 +47,61 @@
   --app-chart-status-cancelled: #b91c1c;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-success-text: #2dd55b;
+:root.ion-palette-dark {
+  color-scheme: dark;
 
-    --app-badge-create-color: #a7f3c8;
-    --app-badge-create-background: #0f3d24;
-    --app-badge-update-color: #ffe08a;
-    --app-badge-update-background: #4a3500;
-    --app-badge-delete-color: #ffc2c7;
-    --app-badge-delete-background: #5a0a12;
+  --app-bg-solid: #0a0f1f;
+  --app-bg: radial-gradient(60rem at 8% 0%, #0d2436, transparent 65%),
+    radial-gradient(50rem at 95% 100%, #1f1a45, transparent 65%), linear-gradient(135deg, #0a0f1f, #141a33);
 
-    --app-chart-text: #d6d8dc;
-    --app-chart-grid: #3a3b3f;
-    --app-chart-primary: #6ea8ff;
-    --app-chart-status-pending: #fbbf24;
-    --app-chart-status-paid: #6ea8ff;
-    --app-chart-status-shipped: #2dd4bf;
-    --app-chart-status-cancelled: #f87171;
+  --app-surface-solid: #161d36;
+  --app-surface: rgb(22 29 54 / 72%);
+  --app-surface-strong: rgb(18 24 46 / 86%);
+  --app-control-bg: rgb(10 15 31 / 50%);
+  --app-control-border: #8d94a6;
+  --app-glass-border: rgb(148 197 255 / 20%);
+  --app-glass-shadow: 0 0.5rem 1.75rem rgb(0 0 0 / 40%);
+
+  --app-accent: #22d3ee;
+  --app-glow: 0 0 0.75rem rgb(34 211 238 / 35%);
+  --app-text-muted: #b6bccb;
+
+  --app-success-text: #2dd55b;
+
+  --app-badge-create-color: #a7f3c8;
+  --app-badge-create-background: #0f3d24;
+  --app-badge-update-color: #ffe08a;
+  --app-badge-update-background: #4a3500;
+  --app-badge-delete-color: #ffc2c7;
+  --app-badge-delete-background: #5a0a12;
+
+  --app-chart-text: #d6d8dc;
+  --app-chart-grid: #3a4260;
+  --app-chart-surface: #151c35;
+  --app-chart-primary: #6ea8ff;
+  --app-chart-status-pending: #fbbf24;
+  --app-chart-status-paid: #6ea8ff;
+  --app-chart-status-shipped: #2dd4bf;
+  --app-chart-status-cancelled: #f87171;
+}
+
+// Sin desenfoque disponible, el texto no debe quedar sobre un fondo sin difuminar.
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  :root.ion-palette-dark {
+    --app-surface: var(--app-surface-solid);
+    --app-surface-strong: var(--app-surface-solid);
+    --app-glass-filter: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root.ion-palette-dark {
+    --app-bg: var(--app-bg-solid);
+    --app-surface: var(--app-surface-solid);
+    --app-surface-strong: var(--app-surface-solid);
+    --app-control-bg: var(--app-surface-solid);
+    --app-glass-filter: none;
   }
 }

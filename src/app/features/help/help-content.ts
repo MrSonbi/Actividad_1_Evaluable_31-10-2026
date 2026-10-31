@@ -84,8 +84,9 @@ export const HELP_SECTIONS: readonly HelpSection[] = [
     id: 'appearance',
     title: 'Modo claro y oscuro',
     items: [
-      'La aplicación usa automáticamente el modo configurado en tu dispositivo.',
-      'Para cambiarlo, modifica la opción de apariencia de tu sistema operativo o de tu navegador.',
+      'Al principio, la aplicación usa el modo configurado en tu dispositivo.',
+      'Para cambiarlo, pulsa el botón redondo con el icono de la luna o del sol, arriba a la derecha.',
+      'Tu elección se recuerda en este navegador la próxima vez que entres.',
     ],
   },
   {
