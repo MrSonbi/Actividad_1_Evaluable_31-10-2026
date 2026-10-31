@@ -101,8 +101,8 @@ La interfaz oculta las acciones no permitidas y las rutas de administración usa
 
 | Workflow                            | Cuándo se ejecuta                                | Qué hace                                                                 |
 | ----------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------ |
-| [`ci.yml`](.github/workflows/ci.yml)     | *Pull requests* y *push* a `main` y `develop` | Instala las dependencias, y ejecuta lint, pruebas unitarias y compilación |
-| [`docs.yml`](.github/workflows/docs.yml) | *Push* a `main`                                 | Genera la documentación técnica y la publica en GitHub Pages             |
+| [`ci.yml`](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/blob/main/.github/workflows/ci.yml)     | *Pull requests* y *push* a `main` y `develop` | Instala las dependencias, y ejecuta lint, pruebas unitarias y compilación |
+| [`docs.yml`](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/blob/main/.github/workflows/docs.yml) | *Push* a `main`                                 | Genera la documentación técnica y la publica en GitHub Pages             |
 
 El CI usa valores ficticios de `SUPABASE_URL` y `SUPABASE_KEY`, así que no necesita secretos.
 
