@@ -8,10 +8,11 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <ion-list>
       <ion-item>
-        <ion-label position="stacked">Correo electrónico</ion-label>
         <ion-input
           type="email"
           formControlName="email"
+          label="Correo electrónico"
+          labelPlacement="stacked"
           autocomplete="email"
           [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
         ></ion-input>
@@ -23,10 +24,11 @@
       }
 
       <ion-item>
-        <ion-label position="stacked">Contraseña</ion-label>
         <ion-input
           type="password"
           formControlName="password"
+          label="Contraseña"
+          labelPlacement="stacked"
           autocomplete="current-password"
           [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
         ></ion-input>
