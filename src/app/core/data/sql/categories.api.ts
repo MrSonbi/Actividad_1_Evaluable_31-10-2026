@@ -8,6 +8,7 @@ import { RestClient } from './rest-client';
 
 /** Opciones de listado de categorías. */
 export interface CategoriesQuery {
+  /** Orden PostgREST, por ejemplo `name.asc`. */
   order?: string;
 }
 

@@ -26,6 +26,7 @@ export interface QueryOptions {
 
 /** Página de resultados con el total de filas que cumplen el filtro. */
 export interface PagedResult<T> {
+  /** Filas de la página. */
   rows: T[];
   /** Total de filas según `Content-Range`; `null` si el servidor no lo informa. */
   total: number | null;

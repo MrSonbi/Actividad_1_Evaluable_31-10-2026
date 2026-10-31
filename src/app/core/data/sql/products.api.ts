@@ -9,10 +9,13 @@ import { RestClient } from './rest-client';
 
 /** Filtros y paginación del listado de productos. */
 export interface ProductsQuery {
+  /** Página solicitada, empezando en 1. */
   page?: number;
+  /** Filas por página. */
   pageSize?: number;
   /** Texto libre: se compara con `ilike` sobre el nombre. */
   search?: string;
+  /** Identificador de la categoría; `null` para todas. */
   categoryId?: number | null;
 }
 

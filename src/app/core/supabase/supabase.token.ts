@@ -4,6 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 
 import { ENVIRONMENT } from '../config/environment.token';
 
+/**
+ * Cliente de Supabase, usado solo para la sesión (Auth) y Realtime.
+ *
+ * Guarda la sesión y renueva el token automáticamente. Los datos SQL se piden
+ * por REST con `HttpClient`.
+ */
 export const SUPABASE_CLIENT = new InjectionToken<SupabaseClient>('SUPABASE_CLIENT', {
   factory: () => {
     const env = inject(ENVIRONMENT);
