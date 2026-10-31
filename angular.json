@@ -29,6 +29,11 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               {
+                "glob": "robots.txt",
+                "input": "src",
+                "output": "/"
+              },
+              {
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
