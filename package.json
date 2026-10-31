@@ -21,7 +21,8 @@
     "test:unit:watch": "ng test --watch",
     "test:e2e": "playwright test",
     "docs": "compodoc -c .compodocrc.json",
-    "docs:serve": "compodoc -c .compodocrc.json -s"
+    "docs:serve": "compodoc -c .compodocrc.json -s",
+    "lighthouse": "node scripts/lighthouse.mjs"
   },
   "private": true,
   "engines": {
@@ -34,6 +35,7 @@
     "@angular/forms": "22.2.3",
     "@angular/platform-browser": "22.2.3",
     "@angular/router": "22.2.3",
+    "@angular/service-worker": "22.2.3",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",
     "@capacitor/haptics": "8.0.2",

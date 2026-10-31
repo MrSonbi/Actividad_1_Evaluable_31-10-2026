@@ -8,7 +8,6 @@ import {
   IonHeader,
   IonInput,
   IonItem,
-  IonLabel,
   IonList,
   IonSpinner,
   IonText,
@@ -31,14 +30,12 @@ import { AuthStore } from '../../../core/auth/auth.store';
     IonContent,
     IonList,
     IonItem,
-    IonLabel,
     IonInput,
     IonButton,
     IonSpinner,
     IonText,
   ],
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
   private readonly fb = inject(FormBuilder);
@@ -59,8 +56,10 @@ export class LoginPage {
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      const firstInvalid = document.querySelector('.ng-invalid[formControlName]') as HTMLElement;
-      firstInvalid?.focus();
+      const firstInvalid = document.querySelector<HTMLElement & { setFocus(): Promise<void> }>(
+        'app-login ion-input.ng-invalid',
+      );
+      void firstInvalid?.setFocus();
       return;
     }
     const { email, password } = this.form.getRawValue();

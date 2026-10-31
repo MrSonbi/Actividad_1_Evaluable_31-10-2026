@@ -6,6 +6,7 @@ import {
   AlertController,
   IonButton,
   IonButtons,
+  IonMenuButton,
   IonContent,
   IonHeader,
   IonIcon,
@@ -67,6 +68,7 @@ type ProductField = keyof ProductFormControls;
     IonContent,
     IonButton,
     IonButtons,
+    IonMenuButton,
     IonIcon,
     IonModal,
     IonList,
@@ -79,7 +81,6 @@ type ProductField = keyof ProductFormControls;
     DataTableComponent,
   ],
   templateUrl: './products.page.html',
-  styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductsPage implements OnInit {

@@ -6,6 +6,7 @@ import {
   AlertController,
   IonButton,
   IonButtons,
+  IonMenuButton,
   IonContent,
   IonHeader,
   IonIcon,
@@ -63,6 +64,7 @@ type CustomerField = keyof CustomerFormControls;
     IonContent,
     IonButton,
     IonButtons,
+    IonMenuButton,
     IonIcon,
     IonModal,
     IonList,
@@ -73,7 +75,6 @@ type CustomerField = keyof CustomerFormControls;
     DataTableComponent,
   ],
   templateUrl: './customers.page.html',
-  styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomersPage implements OnInit {

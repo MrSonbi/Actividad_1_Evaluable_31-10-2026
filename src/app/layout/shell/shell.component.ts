@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, DOCUMENT, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -52,6 +52,7 @@ export class ShellComponent {
   /** Sesión y rol, usados para decidir qué se muestra en el menú. */
   readonly authStore = inject(AuthStore);
   private readonly session = inject(AuthSessionService);
+  private readonly document = inject(DOCUMENT);
   private readonly router = inject(Router);
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -66,6 +67,21 @@ export class ShellComponent {
 
   constructor() {
     addIcons({ homeOutline, cubeOutline, cartOutline, helpCircleOutline, logOutOutline, peopleOutline });
+  }
+
+  /**
+   * Lleva el foco al contenido de la página visible. Se hace por código porque,
+   * con `<base href="/">`, un enlace `#` navegaría a la raíz de la aplicación.
+   *
+   * @param event Clic o pulsación de teclado sobre el enlace
+   */
+  skipToContent(event: Event): void {
+    event.preventDefault();
+    const content = this.document.querySelector<HTMLElement>(
+      '#main-content > .ion-page:not(.ion-page-hidden) ion-content',
+    );
+    content?.setAttribute('tabindex', '-1');
+    content?.focus();
   }
 
   /**

@@ -35,16 +35,16 @@
   <p class="results" aria-live="polite">{{ resultsText() }}</p>
 
   <div class="table-scroll">
-    <table>
+    <table role="table">
       <caption>
         {{
           caption()
         }}
       </caption>
-      <thead>
-        <tr>
+      <thead role="rowgroup">
+        <tr role="row">
           @for (column of columns(); track column.key) {
-            <th scope="col" [attr.aria-sort]="ariaSort(column)">
+            <th scope="col" role="columnheader" [attr.aria-sort]="ariaSort(column)">
               @if (column.sortable) {
                 <button
                   type="button"
@@ -61,24 +61,26 @@
             </th>
           }
           @if (hasActions()) {
-            <th scope="col">Acciones</th>
+            <th scope="col" role="columnheader">Acciones</th>
           }
         </tr>
       </thead>
-      <tbody>
+      <tbody role="rowgroup">
         @if (loading()) {
-          <tr>
-            <td class="message" [attr.colspan]="messageColspan()">Cargando datos…</td>
+          <tr role="row">
+            <td role="cell" class="message" [attr.colspan]="messageColspan()">Cargando datos…</td>
           </tr>
         } @else if (pagedRows().length === 0) {
-          <tr>
-            <td class="message" [attr.colspan]="messageColspan()">No hay resultados para los filtros aplicados.</td>
+          <tr role="row">
+            <td role="cell" class="message" [attr.colspan]="messageColspan()">
+              No hay resultados para los filtros aplicados.
+            </td>
           </tr>
         } @else {
           @for (row of pagedRows(); track $index) {
-            <tr>
+            <tr role="row">
               @for (column of columns(); track column.key) {
-                <td [attr.data-label]="column.label">
+                <td role="cell" [attr.data-label]="column.label">
                   @if (column.type === 'badge') {
                     <span [class]="badgeClass(row, column)">{{ cellValue(row, column) }}</span>
                   } @else {
@@ -87,7 +89,7 @@
                 </td>
               }
               @if (hasActions()) {
-                <td class="actions" data-label="Acciones">
+                <td role="cell" class="actions" data-label="Acciones">
                   @if (selectable()) {
                     <button
                       type="button"

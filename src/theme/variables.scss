@@ -1,2 +1,45 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+// Colores propios con contraste comprobado: al menos 4.5:1 en texto y 3:1 en
+// las series de los gráficos, tanto en modo claro como oscuro. Los tonos
+// `shade`/`tint` de Ionic no sirven aquí porque entre sí apenas contrastan.
+:root {
+  --app-success-text: #0f7b3f;
+
+  --app-badge-create-color: #0a5c2d;
+  --app-badge-create-background: #d1f2df;
+  --app-badge-update-color: #6b4600;
+  --app-badge-update-background: #ffefc5;
+  --app-badge-delete-color: #8f000a;
+  --app-badge-delete-background: #ffd6d9;
+
+  --app-chart-text: #3f4650;
+  --app-chart-grid: #d7d8da;
+  --app-chart-primary: #0054e9;
+  --app-chart-status-pending: #b45309;
+  --app-chart-status-paid: #0054e9;
+  --app-chart-status-shipped: #0f766e;
+  --app-chart-status-cancelled: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-success-text: #2dd55b;
+
+    --app-badge-create-color: #a7f3c8;
+    --app-badge-create-background: #0f3d24;
+    --app-badge-update-color: #ffe08a;
+    --app-badge-update-background: #4a3500;
+    --app-badge-delete-color: #ffc2c7;
+    --app-badge-delete-background: #5a0a12;
+
+    --app-chart-text: #d6d8dc;
+    --app-chart-grid: #3a3b3f;
+    --app-chart-primary: #6ea8ff;
+    --app-chart-status-pending: #fbbf24;
+    --app-chart-status-paid: #6ea8ff;
+    --app-chart-status-shipped: #2dd4bf;
+    --app-chart-status-cancelled: #f87171;
+  }
+}
