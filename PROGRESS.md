@@ -1,8 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F6 · Informes PDF y CSV (RA5) — PR abierto
-- Rama de trabajo: feature/f6-informes
+- Fase actual: F8 · Documentación (RA6) — PR abierto
+- Rama de trabajo: feature/f8-documentacion
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -19,6 +19,7 @@
 - Fecha fin F5a: 2026-10-30
 - Fecha inicio F5b: 2026-10-30
 - Fecha inicio F6: 2026-10-30
+- Fecha inicio F8: 2026-10-31
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
@@ -29,7 +30,7 @@
 - [ ] F5 · Dashboard (solo admin) (RA5) — F5a y F5b con PR abierto
 - [ ] F6 · Informes PDF y CSV (RA5) — PR abierto
 - [ ] F7 · Accesibilidad, responsive y PWA (RA4)
-- [ ] F8 · Documentación (RA6)
+- [ ] F8 · Documentación (RA6) — PR abierto
 - [ ] F9 · CI/CD y despliegue (RA7)
 - [ ] F10 · Cierre
 
@@ -82,6 +83,9 @@
 - F6: `ReportService` (`shared/utils/report`) genera CSV (`buildCsv`: UTF-8 con BOM, `;`, CRLF y comillas escapadas) y PDF (jsPDF + AutoTable: cabecera con título, fecha y usuario, filas alternas y «Página X de Y»). Las bibliotecas de PDF se cargan bajo demanda mediante el token `PDF_LIBRARY`, sustituible en tests.
 - F6: los listados exportan `app-data-table.sortedRows()`, ahora pública: todas las páginas con búsqueda, filtro y orden aplicados. Los botones se desactivan si no hay filas o la tabla está cargando. El dashboard exporta un resumen (indicadores y series) con sus filtros y deja de tener el output `exportRequested`.
 - F6: en CSV los importes van sin símbolo ni miles para que sigan siendo números, y los textos que empiezan por `= + - @` llevan un apóstrofo para que Excel no los ejecute como fórmula (también afecta a teléfonos con `+`).
+- F8: por indicación del usuario, Compodoc genera en `documentation/` (ignorada por Git) en lugar de versionar `docs/compodoc/`. La configuración está en `.compodocrc.json` y `tsconfig.doc.json`.
+- F8: `/help` resume el manual con datos de `help-content.ts`, oculta el dashboard a quien no es administrador y abre la sección de la pantalla de origen (`?section=`, calculado por `helpQueryParams` en el shell). El modo oscuro sigue al sistema; no hay selector manual.
+- F8: la rama parte de `develop`, que aún no incluye F7 (PR #18 abierto). El manual documenta la instalación como PWA y el botón de menú móvil, que llegan con F7. Al fusionar ambos habrá conflictos en `package.json`, `app.routes.ts`, `shell.component.*` y `PROGRESS.md`.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -98,3 +102,4 @@
 - 2026-10-30: F5b con PR abierto - filtros en memoria, KPIs del periodo, rosquilla por estado, feed en vivo con contador, botones de exportación que emiten el evento y tests. La rama parte de `feature/f5a-dashboard` porque el PR #8 sigue abierto. Sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: Fix `fix/dashboard-chart-kpis` con PR abierto - altura estable de los gráficos al filtrar y recarga silenciosa de los datos del dashboard al volver a la página y con la actividad en vivo (debounce de 1 s). Tests ampliados, sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: F6 con PR abierto - `ReportService` con CSV y PDF conectado a productos, clientes, pedidos y dashboard, con tests. Sin ejecutar lint/test/build (los ejecuta el usuario).
+- 2026-10-31: F8 con PR abierto - TSDoc, Compodoc en `documentation/`, manual de usuario, página `/help` enlazada desde el menú y README. Sin ejecutar lint/test/build ni `npm run docs` (los ejecuta el usuario).
