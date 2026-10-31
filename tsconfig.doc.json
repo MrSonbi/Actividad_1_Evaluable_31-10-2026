@@ -1,0 +1,6 @@
+/* Archivos que analiza Compodoc: todo el código de la aplicación, sin tests. */
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/app/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts", "src/test-setup.ts"]
+}

@@ -20,7 +20,8 @@
     "test:unit": "ng test --no-watch",
     "test:unit:watch": "ng test --watch",
     "test:e2e": "playwright test",
-    "docs": "compodoc -p tsconfig.app.json -s"
+    "docs": "compodoc -c .compodocrc.json",
+    "docs:serve": "compodoc -c .compodocrc.json -s"
   },
   "private": true,
   "engines": {
