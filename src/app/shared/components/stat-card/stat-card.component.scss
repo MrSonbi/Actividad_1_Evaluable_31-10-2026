@@ -4,15 +4,12 @@
   align-items: flex-start;
   height: 100%;
   padding: 1rem;
-  border: 1px solid var(--ion-color-light-shade, #d7d8da);
-  border-radius: 0.75rem;
-  background: var(--ion-card-background, #fff);
 }
 
 .stat-card__icon {
   flex: 0 0 auto;
   font-size: 1.75rem;
-  color: var(--ion-color-primary, #0054e9);
+  color: var(--app-accent);
 }
 
 .stat-card__body {
@@ -28,7 +25,7 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ion-color-medium, #6c757d);
+  color: var(--app-text-muted);
 }
 
 .stat-card__value {
@@ -54,5 +51,5 @@
 }
 
 .stat-card__hint {
-  color: var(--ion-color-medium, #6c757d);
+  color: var(--app-text-muted);
 }
