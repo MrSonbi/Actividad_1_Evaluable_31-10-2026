@@ -31,9 +31,6 @@
   min-width: 0;
   margin-top: 1rem;
   padding: 1rem;
-  border: 1px solid var(--ion-color-light-shade, #d7d8da);
-  border-radius: 0.75rem;
-  background: var(--ion-card-background, #fff);
 }
 
 .dashboard-state {
@@ -47,7 +44,7 @@
 
 .dashboard-state p {
   margin: 0;
-  color: var(--ion-color-medium);
+  color: var(--app-text-muted);
 }
 
 .dashboard-state ion-spinner {
@@ -60,7 +57,7 @@
   gap: 1rem;
   padding: 1.5rem;
   border: 1px solid var(--ion-color-danger-tint, #ff8a8a);
-  border-radius: 0.75rem;
+  border-radius: var(--app-radius);
 }
 
 .kpi-section {
@@ -75,9 +72,6 @@ ion-col {
   height: 100%;
   min-width: 0;
   padding: 1rem;
-  border: 1px solid var(--ion-color-light-shade, #d7d8da);
-  border-radius: 0.75rem;
-  background: var(--ion-card-background, #fff);
 }
 
 // Misma altura que los gráficos: el panel no salta al quedarse sin pedidos.
@@ -96,5 +90,5 @@ ion-col {
 .chart-panel__hint {
   margin: 0 0 0.75rem;
   font-size: 0.875rem;
-  color: var(--ion-color-medium);
+  color: var(--app-text-muted);
 }

@@ -21,7 +21,7 @@
 
 .user-info {
   padding: 1rem;
-  border-top: 1px solid var(--ion-color-light-shade);
+  border-top: 1px solid var(--app-glass-border);
 }
 
 .user-name {
@@ -30,13 +30,14 @@
 
 .user-role {
   font-size: 0.875rem;
-  color: var(--ion-color-medium);
+  color: var(--app-text-muted);
   text-transform: capitalize;
 }
 
 // El grosor y la barra lateral indican la página actual sin depender del color.
 ion-item.active {
-  --color: var(--ion-color-primary);
+  --color: var(--app-accent);
   font-weight: 600;
-  border-inline-start: 0.25rem solid var(--ion-color-primary);
+  border-inline-start: 0.25rem solid var(--app-accent);
+  box-shadow: var(--app-glow);
 }

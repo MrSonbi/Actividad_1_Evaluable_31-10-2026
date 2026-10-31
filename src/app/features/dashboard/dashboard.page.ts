@@ -38,6 +38,7 @@ import { ActivityFeedComponent } from '../../shared/components/activity-feed/act
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import type { TableColumn } from '../../shared/models/table.model';
 import { ChartThemeService } from '../../shared/utils/chart-theme.service';
 import { ReportService } from '../../shared/utils/report/report.service';
@@ -117,6 +118,7 @@ const SUMMARY_COLUMNS: readonly TableColumn<SummaryRow>[] = [
     EmptyStateComponent,
     ActivityFeedComponent,
     OrderStatusFilterComponent,
+    ThemeToggleComponent,
   ],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],

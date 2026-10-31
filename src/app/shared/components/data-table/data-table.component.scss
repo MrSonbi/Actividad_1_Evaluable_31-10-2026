@@ -25,9 +25,9 @@
     padding: 0.55rem 0.7rem;
     font: inherit;
     color: inherit;
-    background: transparent;
-    border: 1px solid var(--ion-color-medium, #6c757d);
-    border-radius: 0.5rem;
+    background: var(--app-control-bg);
+    border: 1px solid var(--app-control-border);
+    border-radius: var(--app-radius-small);
   }
 }
 
@@ -46,9 +46,9 @@
   font-size: 0.8125rem;
   color: inherit;
   cursor: pointer;
-  background: transparent;
-  border: 1px solid var(--ion-color-medium, #6c757d);
-  border-radius: 0.4rem;
+  background: var(--app-control-bg);
+  border: 1px solid var(--app-control-border);
+  border-radius: var(--app-radius-small);
 
   &:disabled {
     cursor: not-allowed;
@@ -61,11 +61,12 @@
 }
 
 .action-button--danger {
-  color: var(--ion-color-danger, #c5000f);
-  border-color: var(--ion-color-danger, #c5000f);
+  color: var(--ion-color-danger);
+  border-color: var(--ion-color-danger);
 }
 
 .table-scroll {
+  padding: 0.25rem 0.5rem;
   overflow-x: auto;
 }
 
@@ -79,7 +80,7 @@ th,
 td {
   padding: 0.6rem;
   text-align: left;
-  border-bottom: 1px solid var(--ion-color-light-shade, #d7d8da);
+  border-bottom: 1px solid var(--app-glass-border);
 }
 
 th {
@@ -102,7 +103,7 @@ th {
 .badge {
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: var(--ion-color-light, #f4f5f8);
+  background: var(--ion-color-light);
 }
 
 .pagination {
@@ -132,8 +133,8 @@ th {
   tr {
     padding: 0.35rem;
     margin-bottom: 0.75rem;
-    border: 1px solid var(--ion-color-light-shade, #d7d8da);
-    border-radius: 0.5rem;
+    border: 1px solid var(--app-glass-border);
+    border-radius: var(--app-radius-small);
   }
 
   td {

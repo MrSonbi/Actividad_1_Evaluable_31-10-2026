@@ -30,6 +30,7 @@ import { ProductsStore } from '../../core/data/products.store';
 import { ProductsApi } from '../../core/data/sql/products.api';
 import type { ProductInput, ProductWithCategory } from '../../core/models/product.model';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import type { TableColumn } from '../../shared/models/table.model';
 import { ReportService, reportCount } from '../../shared/utils/report/report.service';
 import type { ReportFormat } from '../../shared/utils/report/report.service';
@@ -79,6 +80,7 @@ type ProductField = keyof ProductFormControls;
     IonSpinner,
     IonText,
     DataTableComponent,
+    ThemeToggleComponent,
   ],
   templateUrl: './products.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
