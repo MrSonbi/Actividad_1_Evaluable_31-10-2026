@@ -14,7 +14,7 @@
   <h1 class="help-title">Ayuda</h1>
   <p class="help-intro">Resumen del manual de usuario. Despliega una sección para ver cómo usar cada parte.</p>
 
-  <ion-accordion-group [value]="openSection()">
+  <ion-accordion-group class="app-glass" [value]="openSection()">
     @for (section of sections(); track section.id) {
     <ion-accordion [value]="section.id">
       <ion-item slot="header">
