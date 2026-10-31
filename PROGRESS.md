@@ -82,6 +82,7 @@
 - F6: `ReportService` (`shared/utils/report`) genera CSV (`buildCsv`: UTF-8 con BOM, `;`, CRLF y comillas escapadas) y PDF (jsPDF + AutoTable: cabecera con título, fecha y usuario, filas alternas y «Página X de Y»). Las bibliotecas de PDF se cargan bajo demanda mediante el token `PDF_LIBRARY`, sustituible en tests.
 - F6: los listados exportan `app-data-table.sortedRows()`, ahora pública: todas las páginas con búsqueda, filtro y orden aplicados. Los botones se desactivan si no hay filas o la tabla está cargando. El dashboard exporta un resumen (indicadores y series) con sus filtros y deja de tener el output `exportRequested`.
 - F6: en CSV los importes van sin símbolo ni miles para que sigan siendo números, y los textos que empiezan por `= + - @` llevan un apóstrofo para que Excel no los ejecute como fórmula (también afecta a teléfonos con `+`).
+- Fix Lighthouse: `src/robots.txt` se copia a la raíz de la build. Vercel sirve antes los archivos existentes que los `rewrites`, así que no se reescribe a `index.html`. `app-stat-card` usa `<p>` para el título: es una etiqueta de dato, no el título de una sección.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -98,3 +99,4 @@
 - 2026-10-30: F5b con PR abierto - filtros en memoria, KPIs del periodo, rosquilla por estado, feed en vivo con contador, botones de exportación que emiten el evento y tests. La rama parte de `feature/f5a-dashboard` porque el PR #8 sigue abierto. Sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: Fix `fix/dashboard-chart-kpis` con PR abierto - altura estable de los gráficos al filtrar y recarga silenciosa de los datos del dashboard al volver a la página y con la actividad en vivo (debounce de 1 s). Tests ampliados, sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: F6 con PR abierto - `ReportService` con CSV y PDF conectado a productos, clientes, pedidos y dashboard, con tests. Sin ejecutar lint/test/build (los ejecuta el usuario).
+- 2026-10-31: Fix `fix/lighthouse-a11y` con PR abierto - etiquetas en el login, zoom permitido, jerarquía de encabezados del dashboard, `meta description` y `robots.txt`. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
