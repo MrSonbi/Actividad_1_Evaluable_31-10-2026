@@ -92,7 +92,7 @@ La interfaz oculta las acciones no permitidas y las rutas de administración usa
 
 ## Documentación
 
-- [Manual de usuario](docs/MANUAL_USUARIO.md), resumido también en la página `/help` de la aplicación.
+- [Manual de usuario](https://github.com/MrSonbi/Actividad_1_Evaluable_31-10-2026/blob/main/docs/MANUAL_USUARIO.md), resumido también en la página `/help` de la aplicación.
 - Documentación técnica: ejecuta `npm run docs` y abre `documentation/index.html`. Esa carpeta se genera y no se versiona. La configuración está en `.compodocrc.json` y `tsconfig.doc.json`.
 
 ## Flujo de Git
