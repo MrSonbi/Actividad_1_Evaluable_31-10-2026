@@ -1,8 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F8 · Documentación (RA6) — PR abierto
-- Rama de trabajo: feature/f8-documentacion
+- Fase actual: F9 · CI/CD y despliegue (RA7) — PR abierto
+- Rama de trabajo: feature/f9-cicd
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -21,6 +21,7 @@
 - Fecha inicio F6: 2026-10-30
 - Fecha inicio F7: 2026-10-30
 - Fecha inicio F8: 2026-10-31
+- Fecha inicio F9: 2026-10-31
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
@@ -31,8 +32,8 @@
 - [ ] F5 · Dashboard (solo admin) (RA5) — F5a y F5b con PR abierto
 - [ ] F6 · Informes PDF y CSV (RA5) — PR abierto
 - [x] F7 · Accesibilidad, responsive y PWA (RA4)
-- [ ] F8 · Documentación (RA6) — PR abierto
-- [ ] F9 · CI/CD y despliegue (RA7)
+- [x] F8 · Documentación (RA6)
+- [ ] F9 · CI/CD y despliegue (RA7) — PR abierto
 - [ ] F10 · Cierre
 
 ## Decisiones
@@ -95,6 +96,8 @@
 - F8: `/help` resume el manual con datos de `help-content.ts`, oculta el dashboard a quien no es administrador y abre la sección de la pantalla de origen (`?section=`, calculado por `helpQueryParams` en el shell). El modo oscuro sigue al sistema; no hay selector manual.
 - F8: la rama parte de `develop`, que aún no incluye F7 (PR #18 abierto). El manual documenta la instalación como PWA y el botón de menú móvil, que llegan con F7. Al fusionar ambos habrá conflictos en `package.json`, `shell.component.html`, `shell.component.ts` y `PROGRESS.md`.
 - Fix Lighthouse: `src/robots.txt` se copia a la raíz de la build. Vercel sirve antes los archivos existentes que los `rewrites`, así que no se reescribe a `index.html`. `app-stat-card` usa `<p>` para el título: es una etiqueta de dato, no el título de una sección.
+- F9: por indicación del usuario, Vercel sigue desplegando por su cuenta desde `main`: no hay `deploy.yml` ni cambios en `vercel.json`. La documentación técnica se publica en GitHub Pages desde `documentation/`, en lugar de subirla como artefacto del CI.
+- F9: comprobado en una carpeta temporal que `scripts/set-env.mjs` termina bien sin `.env` (con y sin variables) y que Compodoc genera sin `environment.ts`, por lo que `docs.yml` no necesita variables. Los enlaces de Compodoc son relativos y sirven bajo la subruta del repositorio.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
@@ -115,3 +118,4 @@
 - 2026-10-31: F8 con PR abierto - TSDoc, Compodoc en `documentation/`, manual de usuario, página `/help` enlazada desde el menú y README. Sin ejecutar lint/test/build ni `npm run docs` (los ejecuta el usuario).
 - 2026-10-31: Fix `fix/lighthouse-a11y` con PR abierto - etiquetas en el login, zoom permitido, jerarquía de encabezados del dashboard, `meta description` y `robots.txt`. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
 - 2026-10-31: Merge de `develop` en `feature/f8-documentacion`: la rama ya incluye F7 y el fix de Lighthouse, y la entrada «Ayuda» se añade al menú de F7. Sin ejecutar lint/test/build (los ejecuta el usuario).
+- 2026-10-31: F9 con PR abierto - workflows `ci.yml` y `docs.yml`, y sección «Integración continua» en el README. Sin ejecutar lint/test/build ni los workflows (los ejecuta el usuario y GitHub).
