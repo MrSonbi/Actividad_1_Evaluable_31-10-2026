@@ -5,6 +5,11 @@ import { from, switchMap } from 'rxjs';
 import { ENVIRONMENT } from '../config/environment.token';
 import { SUPABASE_CLIENT } from '../supabase/supabase.token';
 
+/**
+ * Añade las cabeceras de Supabase a las peticiones dirigidas a `SUPABASE_URL`:
+ * `apikey` siempre y `Authorization: Bearer <token>` si hay sesión. El resto de
+ * peticiones no se modifica.
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const env = inject(ENVIRONMENT);
   const supabase = inject(SUPABASE_CLIENT);

@@ -8,7 +8,9 @@ import { RestClient } from './rest-client';
 
 /** Filtros y paginación del listado de clientes. */
 export interface CustomersQuery {
+  /** Página solicitada, empezando en 1. */
   page?: number;
+  /** Filas por página. */
   pageSize?: number;
   /** Texto libre: se compara con `ilike` sobre nombre y email. */
   search?: string;

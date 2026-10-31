@@ -5,6 +5,10 @@ import {
   IonBadge,
   IonButton,
   IonButtons,
+  IonCol,
+  IonGrid,
+  IonMenuButton,
+  IonRow,
   IonContent,
   IonHeader,
   IonIcon,
@@ -35,6 +39,7 @@ import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import type { TableColumn } from '../../shared/models/table.model';
+import { ChartThemeService } from '../../shared/utils/chart-theme.service';
 import { ReportService } from '../../shared/utils/report/report.service';
 import type { ReportFormat } from '../../shared/utils/report/report.service';
 import { OrderStatusFilterComponent } from '../orders/order-status-filter/order-status-filter.component';
@@ -101,6 +106,10 @@ const SUMMARY_COLUMNS: readonly TableColumn<SummaryRow>[] = [
     IonText,
     IonButton,
     IonButtons,
+    IonCol,
+    IonGrid,
+    IonMenuButton,
+    IonRow,
     IonBadge,
     IonIcon,
     StatCardComponent,
@@ -118,6 +127,7 @@ export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
   readonly store = inject(DashboardStore);
 
   private readonly reports = inject(ReportService);
+  private readonly theme = inject(ChartThemeService);
   private readonly toastController = inject(ToastController);
 
   /** Periodos disponibles en el filtro. */
@@ -243,21 +253,25 @@ export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
   protected readonly categorySeries = computed<ChartSeries>(() => productsByCategorySeries(this.store.byCategory()));
 
   /** Datos del gráfico de líneas de ingresos. */
-  protected readonly revenueData = computed<ChartData<'line'>>(() => ({
-    labels: this.revenueSeries().labels,
-    datasets: [
-      {
-        label: 'Ingresos',
-        data: this.revenueSeries().values,
-        borderColor: '#0054e9',
-        backgroundColor: 'rgba(0, 84, 233, 0.15)',
-        pointBackgroundColor: '#0054e9',
-        fill: true,
-        tension: 0.35,
-        pointRadius: 3,
-      },
-    ],
-  }));
+  protected readonly revenueData = computed<ChartData<'line'>>(() => {
+    const { primary } = this.theme.colors();
+
+    return {
+      labels: this.revenueSeries().labels,
+      datasets: [
+        {
+          label: 'Ingresos',
+          data: this.revenueSeries().values,
+          borderColor: primary,
+          backgroundColor: `${primary}26`,
+          pointBackgroundColor: primary,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+        },
+      ],
+    };
+  });
 
   /** Datos del gráfico de rosquilla, con un color fijo por estado. */
   protected readonly statusData = computed<ChartData<'doughnut'>>(() => ({
@@ -266,27 +280,31 @@ export class DashboardPage implements OnInit, OnDestroy, ViewWillEnter {
       {
         label: 'Pedidos',
         data: this.statusSeries().values,
-        backgroundColor: ['#b45309', '#0054e9', '#0f766e', '#b91c1c'],
-        borderColor: '#ffffff',
+        backgroundColor: [...this.theme.colors().status],
+        borderColor: this.theme.colors().surface,
         borderWidth: 2,
       },
     ],
   }));
 
   /** Datos del gráfico de barras de productos por categoría. */
-  protected readonly categoryData = computed<ChartData<'bar'>>(() => ({
-    labels: this.categorySeries().labels,
-    datasets: [
-      {
-        label: 'Productos',
-        data: this.categorySeries().values,
-        backgroundColor: 'rgba(0, 84, 233, 0.65)',
-        borderColor: '#0054e9',
-        borderWidth: 1,
-        borderRadius: 4,
-      },
-    ],
-  }));
+  protected readonly categoryData = computed<ChartData<'bar'>>(() => {
+    const { primary } = this.theme.colors();
+
+    return {
+      labels: this.categorySeries().labels,
+      datasets: [
+        {
+          label: 'Productos',
+          data: this.categorySeries().values,
+          backgroundColor: `${primary}a6`,
+          borderColor: primary,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ],
+    };
+  });
 
   /** Datos que se exportan: lo que muestran las tarjetas y los gráficos. */
   private readonly summaryRows = computed<readonly SummaryRow[]>(() => {

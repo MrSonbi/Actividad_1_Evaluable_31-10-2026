@@ -21,6 +21,11 @@ describe('StatCardComponent', () => {
     expect(element.querySelector('.stat-card__value')?.textContent).toContain('42');
   });
 
+  it('no añade encabezados para no romper la jerarquía de la página', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('h1, h2, h3, h4, h5, h6')).toBeNull();
+  });
+
   it('no muestra icono si no se recibe', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('ion-icon')).toBeNull();
   });

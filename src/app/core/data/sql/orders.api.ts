@@ -9,9 +9,13 @@ import { RestClient } from './rest-client';
 
 /** Filtros y paginación del listado de pedidos. */
 export interface OrdersQuery {
+  /** Página solicitada, empezando en 1. */
   page?: number;
+  /** Filas por página. */
   pageSize?: number;
+  /** Estado del pedido; `null` para todos. */
   status?: OrderStatus | null;
+  /** Identificador del cliente; `null` para todos. */
   customerId?: number | null;
   /**
    * Fecha mínima de creación en ISO 8601. Se traduce a

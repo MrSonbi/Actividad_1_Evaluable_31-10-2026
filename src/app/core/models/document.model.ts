@@ -25,9 +25,14 @@ export type ActivityData = JsonObject & {
 
 /** Documento de la colección "NoSQL" simulada. */
 export interface DocumentRecord<TData extends JsonObject = JsonObject> {
+  /** Identificador del documento. */
   id: string;
+  /** Colección a la que pertenece. */
   collection: string;
+  /** Contenido JSON. */
   data: TData;
+  /** Usuario que lo creó. */
   created_by: string | null;
+  /** Fecha de creación en ISO 8601. */
   created_at: string;
 }

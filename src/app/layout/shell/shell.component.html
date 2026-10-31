@@ -1,5 +1,5 @@
 @if (authStore.isAuthenticated()) {
-  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+  <a class="skip-link" href="#main-content" (click)="skipToContent($event)">Saltar al contenido</a>
   <ion-split-pane contentId="main-content" when="lg">
     <ion-menu contentId="main-content" type="overlay">
       <ion-header>
@@ -8,39 +8,57 @@
         </ion-toolbar>
       </ion-header>
       <ion-content>
-        <ion-list>
-          @if (authStore.isAdmin()) {
+        <nav aria-label="Menú principal">
+          <ion-list>
+            @if (authStore.isAdmin()) {
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerLink="/dashboard"
+                  routerLinkActive="active"
+                  ariaCurrentWhenActive="page"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                >
+                  <ion-icon slot="start" name="home-outline" aria-hidden="true"></ion-icon>
+                  <ion-label>Dashboard</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            }
             <ion-menu-toggle auto-hide="false">
-              <ion-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <ion-icon slot="start" name="home-outline"></ion-icon>
-                <ion-label>Dashboard</ion-label>
+              <ion-item routerLink="/products" routerLinkActive="active" ariaCurrentWhenActive="page">
+                <ion-icon slot="start" name="cube-outline" aria-hidden="true"></ion-icon>
+                <ion-label>Productos</ion-label>
               </ion-item>
             </ion-menu-toggle>
-          }
-          <ion-menu-toggle auto-hide="false">
-            <ion-item routerLink="/products" routerLinkActive="active">
-              <ion-icon slot="start" name="cube-outline"></ion-icon>
-              <ion-label>Productos</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
-          <ion-menu-toggle auto-hide="false">
-            <ion-item routerLink="/customers" routerLinkActive="active">
-              <ion-icon slot="start" name="people-outline"></ion-icon>
-              <ion-label>Clientes</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
-          <ion-menu-toggle auto-hide="false">
-            <ion-item routerLink="/orders" routerLinkActive="active">
-              <ion-icon slot="start" name="cart-outline"></ion-icon>
-              <ion-label>Pedidos</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
-        </ion-list>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerLink="/customers" routerLinkActive="active" ariaCurrentWhenActive="page">
+                <ion-icon slot="start" name="people-outline" aria-hidden="true"></ion-icon>
+                <ion-label>Clientes</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerLink="/orders" routerLinkActive="active" ariaCurrentWhenActive="page">
+                <ion-icon slot="start" name="cart-outline" aria-hidden="true"></ion-icon>
+                <ion-label>Pedidos</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item
+                routerLink="/help"
+                [queryParams]="helpLinkParams()"
+                routerLinkActive="active"
+                ariaCurrentWhenActive="page"
+              >
+                <ion-icon slot="start" name="help-circle-outline" aria-hidden="true"></ion-icon>
+                <ion-label>Ayuda</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ion-list>
+        </nav>
         <div class="user-info">
           <div class="user-name">{{ authStore.profile()?.full_name || authStore.email() }}</div>
           <div class="user-role">{{ authStore.role() }}</div>
           <ion-button fill="clear" size="small" (click)="signOut()">
-            <ion-icon slot="start" name="log-out-outline"></ion-icon>
+            <ion-icon slot="start" name="log-out-outline" aria-hidden="true"></ion-icon>
             Cerrar sesión
           </ion-button>
         </div>

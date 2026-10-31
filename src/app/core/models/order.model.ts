@@ -3,15 +3,21 @@ export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'cancelled';
 
 /** Pedido de un cliente. */
 export interface Order {
+  /** Identificador. */
   id: number;
+  /** Cliente que hace el pedido. */
   customer_id: number;
+  /** Estado actual. */
   status: OrderStatus;
+  /** Importe total en euros. */
   total: number;
+  /** Fecha de creación en ISO 8601. */
   created_at: string;
 }
 
 /** Pedido enriquecido con el nombre del cliente (join PostgREST). */
 export interface OrderWithCustomer extends Order {
+  /** Nombre del cliente, si existe. */
   customer_name: string | null;
 }
 
@@ -20,6 +26,7 @@ export type OrderInput = Omit<Order, 'id' | 'created_at'>;
 
 /** Fila tal y como la devuelve PostgREST al pedir `*,customers(full_name)`. */
 export interface OrderRow extends Order {
+  /** Cliente embebido por PostgREST. */
   customers: { full_name: string } | null;
 }
 
