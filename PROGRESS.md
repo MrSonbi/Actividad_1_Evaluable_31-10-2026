@@ -85,7 +85,7 @@
 - F6: en CSV los importes van sin símbolo ni miles para que sigan siendo números, y los textos que empiezan por `= + - @` llevan un apóstrofo para que Excel no los ejecute como fórmula (también afecta a teléfonos con `+`).
 - F8: por indicación del usuario, Compodoc genera en `documentation/` (ignorada por Git) en lugar de versionar `docs/compodoc/`. La configuración está en `.compodocrc.json` y `tsconfig.doc.json`.
 - F8: `/help` resume el manual con datos de `help-content.ts`, oculta el dashboard a quien no es administrador y abre la sección de la pantalla de origen (`?section=`, calculado por `helpQueryParams` en el shell). El modo oscuro sigue al sistema; no hay selector manual.
-- F8: la rama parte de `develop`, que aún no incluye F7 (PR #18 abierto). El manual documenta la instalación como PWA y el botón de menú móvil, que llegan con F7. Al fusionar ambos habrá conflictos en `package.json`, `app.routes.ts`, `shell.component.*` y `PROGRESS.md`.
+- F8: la rama parte de `develop`, que aún no incluye F7 (PR #18 abierto). El manual documenta la instalación como PWA y el botón de menú móvil, que llegan con F7. Al fusionar ambos habrá conflictos en `package.json`, `shell.component.html`, `shell.component.ts` y `PROGRESS.md`.
 
 ## Bitácora
 - 2026-10-28: Creado PROGRESS.md. Inicio F0. Leídos AGENTS.md y 01_schema.sql.
