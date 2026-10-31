@@ -35,6 +35,12 @@
               <ion-label>Pedidos</ion-label>
             </ion-item>
           </ion-menu-toggle>
+          <ion-menu-toggle auto-hide="false">
+            <ion-item routerLink="/help" [queryParams]="helpLinkParams()" routerLinkActive="active">
+              <ion-icon slot="start" name="help-circle-outline" aria-hidden="true"></ion-icon>
+              <ion-label>Ayuda</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
         </ion-list>
         <div class="user-info">
           <div class="user-name">{{ authStore.profile()?.full_name || authStore.email() }}</div>

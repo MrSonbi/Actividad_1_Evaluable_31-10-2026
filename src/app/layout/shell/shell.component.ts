@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonButton,
   IonContent,
@@ -16,10 +17,12 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cartOutline, cubeOutline, homeOutline, logOutOutline, peopleOutline } from 'ionicons/icons';
+import { cartOutline, cubeOutline, helpCircleOutline, homeOutline, logOutOutline, peopleOutline } from 'ionicons/icons';
+import { filter, map } from 'rxjs/operators';
 
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { AuthStore } from '../../core/auth/auth.store';
+import { helpQueryParams } from '../../shared/utils/help-link';
 
 /** Estructura de la zona privada: menú lateral por rol, datos del usuario y contenido. */
 @Component({
@@ -49,9 +52,20 @@ export class ShellComponent {
   /** Sesión y rol, usados para decidir qué se muestra en el menú. */
   readonly authStore = inject(AuthStore);
   private readonly session = inject(AuthSessionService);
+  private readonly router = inject(Router);
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  /** Parámetros del enlace a la ayuda: abren la sección de la pantalla actual. */
+  readonly helpLinkParams = computed(() => helpQueryParams(this.currentUrl()));
 
   constructor() {
-    addIcons({ homeOutline, cubeOutline, cartOutline, logOutOutline, peopleOutline });
+    addIcons({ homeOutline, cubeOutline, cartOutline, helpCircleOutline, logOutOutline, peopleOutline });
   }
 
   /**

@@ -40,6 +40,11 @@ export const routes: Routes = [
         path: 'orders',
         loadComponent: () => import('./features/orders/orders.page').then((m) => m.OrdersPage),
       },
+      {
+        path: 'help',
+        title: 'Ayuda · Inventario',
+        loadComponent: () => import('./features/help/help.page').then((m) => m.HelpPage),
+      },
     ],
   },
   {
