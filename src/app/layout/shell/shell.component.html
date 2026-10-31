@@ -41,6 +41,17 @@
                 <ion-label>Pedidos</ion-label>
               </ion-item>
             </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item
+                routerLink="/help"
+                [queryParams]="helpLinkParams()"
+                routerLinkActive="active"
+                ariaCurrentWhenActive="page"
+              >
+                <ion-icon slot="start" name="help-circle-outline" aria-hidden="true"></ion-icon>
+                <ion-label>Ayuda</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
           </ion-list>
         </nav>
         <div class="user-info">

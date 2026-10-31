@@ -1,6 +1,8 @@
 /** Categoría de producto. */
 export interface Category {
+  /** Identificador. */
   id: number;
+  /** Nombre de la categoría. */
   name: string;
 }
 

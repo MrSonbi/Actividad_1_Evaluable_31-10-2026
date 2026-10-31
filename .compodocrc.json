@@ -1,0 +1,6 @@
+{
+  "name": "Gestión de Inventario y Pedidos",
+  "tsconfig": "tsconfig.doc.json",
+  "output": "documentation",
+  "language": "es-ES"
+}

@@ -5,6 +5,7 @@ import type { Profile, UserRole } from '../models/auth.model';
 
 import { AuthService } from './auth.service';
 
+/** Estado de la sesión y del perfil del usuario. */
 interface AuthState {
   userId: string | null;
   email: string | null;
@@ -15,6 +16,7 @@ interface AuthState {
   error: string | null;
 }
 
+/** Estado sin usuario y con la sesión aún sin restaurar. */
 const initialState: AuthState = {
   userId: null,
   email: null,
@@ -25,6 +27,12 @@ const initialState: AuthState = {
   error: null,
 };
 
+/**
+ * Store global de autenticación.
+ *
+ * Expone el usuario, su perfil y su rol como signals, junto con `isAdmin` e
+ * `isAuthenticated`. Los guards esperan a `initialized` antes de decidir.
+ */
 export const AuthStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
@@ -33,6 +41,7 @@ export const AuthStore = signalStore(
     isAuthenticated: computed(() => !!store.userId()),
   })),
   withMethods((store, authService = inject(AuthService)) => ({
+    /** Restaura la sesión guardada y carga el perfil. Siempre deja `initialized` a `true`. */
     async init(): Promise<void> {
       patchState(store, { loading: true, error: null });
       try {
@@ -71,6 +80,13 @@ export const AuthStore = signalStore(
         patchState(store, { ...initialState, initialized: true, error: message });
       }
     },
+    /**
+     * Inicia sesión con email y contraseña y carga el perfil.
+     *
+     * @param email Correo electrónico
+     * @param password Contraseña
+     * @returns Objeto con el error producido o `null` si ha ido bien
+     */
     async signIn(email: string, password: string): Promise<{ error: unknown | null }> {
       patchState(store, { loading: true, error: null });
       try {
@@ -93,6 +109,7 @@ export const AuthStore = signalStore(
     clearSession(): void {
       patchState(store, { ...initialState, initialized: true });
     },
+    /** Cierra la sesión. El estado local se limpia aunque Supabase no responda. */
     async signOut(): Promise<void> {
       patchState(store, { loading: true });
       try {
@@ -103,6 +120,11 @@ export const AuthStore = signalStore(
       }
       this.clearSession();
     },
+    /**
+     * Fija o limpia el mensaje de error.
+     *
+     * @param message Mensaje que se muestra o `null` para limpiarlo
+     */
     setError(message: string | null): void {
       patchState(store, { error: message });
     },

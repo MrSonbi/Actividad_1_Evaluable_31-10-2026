@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button aria-label="Abrir menú"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Ayuda</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" role="main">
+  <h1 class="help-title">Ayuda</h1>
+  <p class="help-intro">Resumen del manual de usuario. Despliega una sección para ver cómo usar cada parte.</p>
+
+  <ion-accordion-group [value]="openSection()">
+    @for (section of sections(); track section.id) {
+    <ion-accordion [value]="section.id">
+      <ion-item slot="header">
+        <ion-label>{{ section.title }}</ion-label>
+      </ion-item>
+      <div slot="content" class="ion-padding">
+        <ul class="help-list">
+          @for (item of section.items; track item) {
+          <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    </ion-accordion>
+    }
+  </ion-accordion-group>
+</ion-content>

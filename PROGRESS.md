@@ -1,8 +1,8 @@
 # PROGRESS.md · Proyecto DI 0488
 
 ## Estado general
-- Fase actual: F7 · Accesibilidad, responsive y PWA (RA4) — PR abierto
-- Rama de trabajo: feature/f7-accesibilidad
+- Fase actual: F8 · Documentación (RA6) — PR abierto
+- Rama de trabajo: feature/f8-documentacion
 - Fecha inicio F0: 2026-10-28
 - Fecha fin F0: 2026-10-28
 - Fecha inicio F1: 2026-10-28
@@ -20,6 +20,7 @@
 - Fecha inicio F5b: 2026-10-30
 - Fecha inicio F6: 2026-10-30
 - Fecha inicio F7: 2026-10-30
+- Fecha inicio F8: 2026-10-31
 
 ## Checklist de fases
 - [x] F0 · Base del proyecto
@@ -29,8 +30,8 @@
 - [x] F4 · Funcionalidades y formularios (RA2)
 - [ ] F5 · Dashboard (solo admin) (RA5) — F5a y F5b con PR abierto
 - [ ] F6 · Informes PDF y CSV (RA5) — PR abierto
-- [ ] F7 · Accesibilidad, responsive y PWA (RA4) — PR abierto
-- [ ] F8 · Documentación (RA6)
+- [x] F7 · Accesibilidad, responsive y PWA (RA4)
+- [ ] F8 · Documentación (RA6) — PR abierto
 - [ ] F9 · CI/CD y despliegue (RA7)
 - [ ] F10 · Cierre
 
@@ -90,6 +91,9 @@
 - F7: el enlace «Saltar al contenido» mueve el foco por código, porque con `<base href="/">` el enlace `#` navegaba a la raíz.
 - F7: PWA montada a mano (`ngsw-config.json`, `manifest.webmanifest`, iconos y `provideServiceWorker` solo fuera de modo desarrollo): el repo tenía `@angular/pwa` instalado, pero sin configurar. `@angular/service-worker` añadido con `package-lock.json` sincronizado. Las peticiones a Supabase no se cachean.
 - F7: `npm run lighthouse` sirve `www` con un servidor Node propio y guarda los informes de `/login` en `docs/lighthouse`.
+- F8: por indicación del usuario, Compodoc genera en `documentation/` (ignorada por Git) en lugar de versionar `docs/compodoc/`. La configuración está en `.compodocrc.json` y `tsconfig.doc.json`.
+- F8: `/help` resume el manual con datos de `help-content.ts`, oculta el dashboard a quien no es administrador y abre la sección de la pantalla de origen (`?section=`, calculado por `helpQueryParams` en el shell). El modo oscuro sigue al sistema; no hay selector manual.
+- F8: la rama parte de `develop`, que aún no incluye F7 (PR #18 abierto). El manual documenta la instalación como PWA y el botón de menú móvil, que llegan con F7. Al fusionar ambos habrá conflictos en `package.json`, `shell.component.html`, `shell.component.ts` y `PROGRESS.md`.
 - Fix Lighthouse: `src/robots.txt` se copia a la raíz de la build. Vercel sirve antes los archivos existentes que los `rewrites`, así que no se reescribe a `index.html`. `app-stat-card` usa `<p>` para el título: es una etiqueta de dato, no el título de una sección.
 
 ## Bitácora
@@ -108,4 +112,6 @@
 - 2026-10-30: Fix `fix/dashboard-chart-kpis` con PR abierto - altura estable de los gráficos al filtrar y recarga silenciosa de los datos del dashboard al volver a la página y con la actividad en vivo (debounce de 1 s). Tests ampliados, sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: F6 con PR abierto - `ReportService` con CSV y PDF conectado a productos, clientes, pedidos y dashboard, con tests. Sin ejecutar lint/test/build (los ejecuta el usuario).
 - 2026-10-30: F7 con PR abierto - accesibilidad, responsive, modo oscuro en gráficos, `chart.update()`, PWA y script de Lighthouse, con tests. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
+- 2026-10-31: F8 con PR abierto - TSDoc, Compodoc en `documentation/`, manual de usuario, página `/help` enlazada desde el menú y README. Sin ejecutar lint/test/build ni `npm run docs` (los ejecuta el usuario).
 - 2026-10-31: Fix `fix/lighthouse-a11y` con PR abierto - etiquetas en el login, zoom permitido, jerarquía de encabezados del dashboard, `meta description` y `robots.txt`. Sin ejecutar lint/test/build ni Lighthouse (los ejecuta el usuario).
+- 2026-10-31: Merge de `develop` en `feature/f8-documentacion`: la rama ya incluye F7 y el fix de Lighthouse, y la entrada «Ayuda» se añade al menú de F7. Sin ejecutar lint/test/build (los ejecuta el usuario).

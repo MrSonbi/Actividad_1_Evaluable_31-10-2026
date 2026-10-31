@@ -44,7 +44,8 @@ describe('ShellComponent', () => {
     const nav = element().querySelector('nav');
 
     expect(nav?.getAttribute('aria-label')).toBe('Menú principal');
-    expect(nav?.querySelectorAll('ion-item')).toHaveLength(4);
+    expect(nav?.querySelectorAll('ion-item')).toHaveLength(5);
+    expect(nav?.textContent).toContain('Ayuda');
   });
 
   it('el enlace de salto no navega y lleva el foco al contenido visible', () => {
