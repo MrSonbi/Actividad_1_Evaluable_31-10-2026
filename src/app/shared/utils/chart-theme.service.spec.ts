@@ -4,12 +4,12 @@ import { ChartThemeService } from './chart-theme.service';
 import { ThemeService } from './theme.service';
 
 describe('ChartThemeService', () => {
-  let listeners: (() => void)[];
+  let listeners: ((event: MediaQueryListEvent) => void)[];
 
   beforeEach(() => {
     listeners = [];
     vi.spyOn(window, 'matchMedia').mockReturnValue({
-      addEventListener: (_type: string, listener: () => void) => listeners.push(listener),
+      addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.push(listener),
     } as unknown as MediaQueryList);
     document.documentElement.style.removeProperty('--app-chart-text');
     localStorage.clear();
@@ -41,7 +41,7 @@ describe('ChartThemeService', () => {
     expect(service.colors().text).toBe('#3f4650');
 
     document.documentElement.style.setProperty('--app-chart-text', '#d6d8dc');
-    listeners.forEach((listener) => listener());
+    listeners.forEach((listener) => listener({ matches: false } as MediaQueryListEvent));
 
     expect(service.colors().text).toBe('#d6d8dc');
   });
