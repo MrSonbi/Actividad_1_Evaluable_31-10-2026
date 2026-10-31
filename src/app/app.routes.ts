@@ -2,6 +2,10 @@ import type { Routes } from '@angular/router';
 
 import { authGuard, guestGuard, roleGuard } from './core/auth/auth.guard';
 
+/**
+ * Rutas de la aplicación, cargadas bajo demanda. Las de administración usan
+ * `canMatch` además de `canActivate` para no descargar su código a otros roles.
+ */
 export const routes: Routes = [
   {
     path: 'login',

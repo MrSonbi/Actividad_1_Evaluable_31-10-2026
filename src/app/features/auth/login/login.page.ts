@@ -18,6 +18,7 @@ import {
 
 import { AuthStore } from '../../../core/auth/auth.store';
 
+/** Pantalla de acceso con correo electrónico y contraseña. */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -41,14 +42,20 @@ import { AuthStore } from '../../../core/auth/auth.store';
 })
 export class LoginPage {
   private readonly fb = inject(FormBuilder);
+  /** Estado de la sesión: carga y error del acceso. */
   readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
+  /** Formulario tipado de acceso. */
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
+  /**
+   * Valida el formulario, inicia sesión y redirige según el rol. Si hay errores,
+   * lleva el foco al primer campo inválido.
+   */
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

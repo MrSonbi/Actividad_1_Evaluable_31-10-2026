@@ -21,6 +21,7 @@ import { cartOutline, cubeOutline, homeOutline, logOutOutline, peopleOutline } f
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { AuthStore } from '../../core/auth/auth.store';
 
+/** Estructura de la zona privada: menú lateral por rol, datos del usuario y contenido. */
 @Component({
   selector: 'app-shell',
   standalone: true,
@@ -45,6 +46,7 @@ import { AuthStore } from '../../core/auth/auth.store';
   styleUrls: ['./shell.component.scss'],
 })
 export class ShellComponent {
+  /** Sesión y rol, usados para decidir qué se muestra en el menú. */
   readonly authStore = inject(AuthStore);
   private readonly session = inject(AuthSessionService);
 
